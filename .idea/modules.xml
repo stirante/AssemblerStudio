@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51_main.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51_main.iml" group="AssemblerEditor51" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51_test.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51_test.iml" group="AssemblerEditor51" />
+    </modules>
+  </component>
+</project>

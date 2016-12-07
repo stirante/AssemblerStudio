@@ -1,0 +1,69 @@
+.root {
+    /* Hide outline */
+    -fx-focus-color: transparent;
+    /* Base colors for whole UI */
+    -fx-base: #3c3f41;
+    -fx-background: #2B2B2B;
+    -fx-background-color: #2B2B2B;
+    -fx-control-inner-background: #2B2B2B;
+    -fx-text-base-color: #c7c7c7;
+}
+
+.text {
+    /* Default text color */
+    -fx-fill: #c7c7c7;
+}
+.paragraph-box:has-caret {
+    /* Background of the current line */
+    -fx-background-color: #323232;
+}
+.paragraph-box {
+    /* Editor background  */
+    -fx-background-color: #2B2B2B;
+}
+
+.styled-text-area .caret {
+    /* Caret color (that blinking thingy when you type text) */
+    -fx-stroke: #c7c7c7;
+}
+
+.lineno {
+    /* Line number background */
+    -fx-background-color: #323232;
+}
+
+.styled-text-area {
+    /* Editor background */
+    -fx-background-color: #2B2B2B;
+    /* This should be the background of selected text, but it's broken right now */
+    -fx-highlight-text-fill: #214283;
+}
+
+/* Syntax colors */
+
+.comment {
+    -fx-fill: #74a567;
+}
+
+.instruction {
+    -fx-fill: #d78b40;
+}
+
+.alias {
+    -fx-fill: #9cc9d1;
+    -fx-font-weight: bold;
+}
+
+.dollar-thingy {
+    -fx-fill: #cbd14a;
+    -fx-font-weight: bold;
+}
+
+.directive {
+    -fx-fill: #0091ff;
+    -fx-font-weight: bold;
+}
+
+.number {
+    -fx-fill: #d53ec5;
+}
