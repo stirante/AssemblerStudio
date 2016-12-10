@@ -38,6 +38,7 @@
       <ToolBar prefHeight="40.0" prefWidth="200.0">
         <items>
           <Button mnemonicParsing="false" onAction="#onCompileClicked" text="Compile" />
+            <Button mnemonicParsing="false" onAction="#onRunClicked" text="Run" />
         </items>
       </ToolBar>
       <SplitPane dividerPositions="0.7" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">

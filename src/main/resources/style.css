@@ -6,7 +6,22 @@
     -fx-background: #2B2B2B;
     -fx-background-color: #2B2B2B;
     -fx-control-inner-background: #2B2B2B;
-    -fx-text-base-color: #c7c7c7;
+    /*-fx-text-base-color: #c7c7c7;*/
+}
+
+.button {
+    -fx-background: #4b4e50;
+    -fx-background-color: #4b4e50;
+}
+
+.button:hover {
+    -fx-background: #54585a;
+    -fx-background-color: #54585a;
+}
+
+.button:pressed {
+    -fx-background: #3c3f41;
+    -fx-background-color: #3c3f41;
 }
 
 .text {

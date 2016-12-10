@@ -197,6 +197,7 @@ public class CodeView extends Tab {
             alert.setTitle("Unsaved changes");
             alert.setHeaderText("You have unsaved changes in tab " + getText().substring(0, getText().length() - 1));
             alert.setContentText("Do you want to save it?");
+            alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
@@ -230,7 +231,7 @@ public class CodeView extends Tab {
 
     public String compile() {
         //process with absolute path to compiler and absolute path to asm file
-        ProcessBuilder pb = new ProcessBuilder(new File("compiler/asemw.exe").getAbsolutePath(), file.getAbsolutePath());
+        ProcessBuilder pb = new ProcessBuilder(new File("bin/asemw.exe").getAbsolutePath(), file.getAbsolutePath());
         //set working directory to the one containing asm file (fixes MCU files missing)
         pb.directory(file.getParentFile());
         try {
@@ -267,5 +268,23 @@ public class CodeView extends Tab {
 
     public void insert(String str) {
         codeArea.insertText(codeArea.getCaretPosition(), str);
+    }
+
+    public String run() {
+        //find hex file
+        File hex = new File(file.getParentFile(), file.getName().substring(0, file.getName().lastIndexOf('.')) + ".hex");
+        if (!hex.exists()) return "You need to compile file first!";
+        //process with absolute path to compiler and absolute path to asm file
+        ProcessBuilder pb = new ProcessBuilder(new File("bin/DSM-51_Any_CPU.exe").getAbsolutePath(), hex.getAbsolutePath());
+        //set working directory to the one containing asm file (fixes MCU files missing)
+        pb.directory(file.getParentFile());
+        try {
+            //start process
+            pb.start();
+            return "Simulator started with file " + hex.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to run emulator!\n" + e.getMessage();
+        }
     }
 }

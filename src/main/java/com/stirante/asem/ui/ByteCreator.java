@@ -71,13 +71,13 @@ public class ByteCreator {
         }
     }
 
-    public String create(ArrayList<String> descriptions) {
+    public String create(String name, ArrayList<String> descriptions) {
         this.descriptions = descriptions;
         reset();
         Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Byte creator");
+        dialog.setTitle("Byte creator - " + name);
         dialog.setHeaderText(null);
-
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 

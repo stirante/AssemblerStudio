@@ -77,6 +77,7 @@ public class Main extends Application {
         undoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
         redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
         closeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
+        openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         primaryStage.show();
         stage = primaryStage;
         //Initialize ByteCreator
@@ -115,6 +116,7 @@ public class Main extends Application {
 
     public void onAboutClicked() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         alert.setTitle("About");
         alert.setHeaderText("AssemblerEditor51 v." + VERSION);
         alert.setContentText("Author: Piotr Brzozowski");
@@ -200,7 +202,7 @@ public class Main extends Application {
                     "\n" +
                     "GATE\n" +
                     "The hardware way of starting and stopping the timer by an external source is achieved by making GATE=1 in the TMOD register. And if we change to GATE=0 then we do no need external hardware to start and stop the timers.");
-            String bits = byteCreator.create(descs);
+            String bits = byteCreator.create("TMOD", descs);
             selectedItem.insert(bits);
         }
     }
@@ -225,7 +227,7 @@ public class Main extends Application {
                     "Timer 1 run control bit. Set to 1 by programmer to enable timer to count; Cleared to 0 by program to halt timer.");
             descs.add(7, "TF1\n" +
                     "Timer1 over flow flag. Set when timer rolls from all 1s to 0. Cleared when the processor vectors to execute interrupt service routine. Located at program address 001Bh.");
-            String bits = byteCreator.create(descs);
+            String bits = byteCreator.create("TCON", descs);
             selectedItem.insert(bits);
         }
     }
@@ -248,12 +250,23 @@ public class Main extends Application {
             descs.add(6, "Undefined");
             descs.add(7, "EA\n" +
                     "Global Interrupt Enable/Disable");
-            String bits = byteCreator.create(descs);
+            String bits = byteCreator.create("IE", descs);
             selectedItem.insert(bits);
         }
     }
 
     public void onNewClicked() {
         openFile(null);
+    }
+
+    public void onRunClicked() {
+        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            if (!selectedItem.save()) {
+                result.setText("You need to save and compile file first!");
+                return;
+            }
+            result.setText(selectedItem.run());
+        }
     }
 }
