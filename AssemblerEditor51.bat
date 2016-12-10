@@ -72,16 +72,13 @@ set CMD_LINE_ARGS=%$
 set CLASSPATH=AssemblerEditor51.jar
 
 @rem Execute jadx-gui
-start "jadx-gui" /B "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %JADX_GUI_OPTS%  -classpath "%CLASSPATH%" com.stirante.asem.Main %CMD_LINE_ARGS%
+start "asem" /B "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS%  -classpath "%CLASSPATH%" com.stirante.asem.Main %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell
 if "%ERRORLEVEL%"=="0" goto mainEnd
 
 :fail
-rem Set variable JADX_GUI_EXIT_CONSOLE if you need the _script_ return code instead of
-rem the _cmd.exe /c_ return code!
-if  not "" == "%JADX_GUI_EXIT_CONSOLE%" exit 1
 exit /b 1
 
 :mainEnd

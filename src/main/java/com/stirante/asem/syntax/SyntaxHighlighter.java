@@ -1,4 +1,4 @@
-package com.stirante.asem;
+package com.stirante.asem.syntax;
 
 import com.stirante.asem.utils.AsyncTask;
 import org.fxmisc.richtext.CodeArea;

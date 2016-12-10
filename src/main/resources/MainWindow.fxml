@@ -10,15 +10,23 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onOpenClicked" text="Open" />
+                  <MenuItem fx:id="newMenuItem" mnemonicParsing="false" onAction="#onNewClicked" text="New" />
+                  <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#onOpenClicked" text="Open" />
                   <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" onAction="#onSaveClicked" text="Save" />
-                  <MenuItem mnemonicParsing="false" onAction="#onCloseClicked" text="Close" />
+                  <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#onCloseClicked" text="Close" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#undo" text="Undo" />
-                  <MenuItem mnemonicParsing="false" onAction="#redo" text="Redo" />
+                  <MenuItem fx:id="undoMenuItem" mnemonicParsing="false" onAction="#undo" text="Undo" />
+                  <MenuItem fx:id="redoMenuItem" mnemonicParsing="false" onAction="#redo" text="Redo" />
+                  <Menu fx:id="byteMenu" disable="true" mnemonicParsing="false" text="Byte creator">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#byteCreatorTmod" text="Insert TMOD byte" />
+                        <MenuItem mnemonicParsing="false" onAction="#byteCreatorTcon" text="Insert TCON byte" />
+                        <MenuItem mnemonicParsing="false" onAction="#byteCreatorIe" text="Insert IE byte" />
+                    </items>
+                  </Menu>
                </items></Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
