@@ -1,5 +1,6 @@
 package com.stirante.asem;
 
+import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
 import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.Tooltips;
@@ -14,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.MouseOverTextEvent;
@@ -33,63 +35,26 @@ import java.util.regex.Pattern;
 public class CodeView extends Tab {
     private static final Pattern WORD = Pattern.compile("[\\w.]+");
     private static int newCounter = 1;
-    private final ContextMenu context;
-    private final MenuItem copyItem;
     @FXML
     public StackPane content;
+    private ContextMenu context;
+    private MenuItem copyItem;
     private File file;
     private CodeArea codeArea;
     private boolean changed = false;
     private String original = "";
+    private SyntaxAnalyzer.AnalysisResult syntaxAnalysis;
 
     public CodeView(File f) {
-//        if (f == null) throw new IllegalArgumentException("File cannot be null!");
         this.file = f;
         //handle tab close
         setOnCloseRequest(event -> onClose());
-        context = new ContextMenu();
-        //copy item
-        copyItem = new MenuItem("Copy");
-        copyItem.setOnAction(e -> {
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(codeArea.getSelectedText());
-            clipboard.setContent(content);
-        });
-        context.getItems().addAll(copyItem);
-        codeArea = new CodeArea();
-        Popup popup = new Popup();
-        Label popupMsg = new Label();
-        popupMsg.setStyle(
-                "-fx-background-color: #2e2e2e;" +
-                        "-fx-text-fill: #8a8a8a;" +
-                        "-fx-border-color: white;" +
-                        "-fx-padding: 5;");
-        popupMsg.setWrapText(true);
-        popupMsg.setMaxWidth(400);
-        popup.getContent().add(popupMsg);
 
-        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
-        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
-            int chIdx = e.getCharacterIndex();
-            Point2D pos = e.getScreenPosition();
-            int start = chIdx;
-            int end = chIdx;
-            Matcher matcher = WORD.matcher(codeArea.getText());
-            while (matcher.find()) {
-                if (matcher.start() <= chIdx && matcher.end() >= chIdx) {
-                    start = matcher.start();
-                    end = matcher.end();
-                }
-            }
-            String s = codeArea.getText().substring(start, end);
-            String s1 = Tooltips.get(s);
-            if (!s1.isEmpty()) {
-                popupMsg.setText(s + ": " + s1);
-                popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
-            }
-        });
-        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> popup.hide());
+        codeArea = new CodeArea();
+
+        initClicks();
+        initTooltips();
+
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.richChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
@@ -97,37 +62,7 @@ public class CodeView extends Tab {
                     SyntaxHighlighter.computeHighlighting(codeArea);
                     checkChanges();
                 });
-        //just loading file async for smoother experience
-        if (f != null) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                public String doInBackground(Void[] params) {
-                    try {
-                        return new String(Files.readAllBytes(file.toPath()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return "";
-                        //TODO:Umm, handle it?
-                    }
-                }
-
-                @Override
-                public void onPostExecute(String result) {
-                    original = result;
-                    codeArea.replaceText(0, 0, result);
-                    codeArea.moveTo(0);
-                }
-            }.execute();
-        } else changed = true;
-        //handle context menu
-        codeArea.setOnContextMenuRequested(event -> {
-            context.show(codeArea, event.getScreenX(), event.getScreenY());
-            String selectedText = codeArea.getSelectedText();
-            copyItem.setDisable(selectedText == null || selectedText.isEmpty());
-        });
-
-        //hide context menu on click
-        codeArea.setOnMouseClicked(event -> context.hide());
+        loadFile();
         //load tab layout
         FXMLLoader loader = new FXMLLoader(CodeView.class.getResource("/Tab.fxml"));
         loader.setController(this);
@@ -151,8 +86,131 @@ public class CodeView extends Tab {
         return SimpleDateFormat.getTimeInstance().format(new Date(System.currentTimeMillis()));
     }
 
+    private void loadFile() {
+        //just loading file async for smoother experience
+        if (file != null) {
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                public String doInBackground(Void[] params) {
+                    try {
+                        return new String(Files.readAllBytes(file.toPath()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return "";
+                        //TODO:Umm, handle it?
+                    }
+                }
+
+                @Override
+                public void onPostExecute(String result) {
+                    original = result;
+                    codeArea.replaceText(0, 0, result);
+                    codeArea.moveTo(0);
+                }
+            }.execute();
+        } else changed = true;
+    }
+
+    private void initClicks() {
+        context = new ContextMenu();
+        //copy item
+        copyItem = new MenuItem("Copy");
+        copyItem.setOnAction(e -> {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(codeArea.getSelectedText());
+            clipboard.setContent(content);
+        });
+        context.getItems().addAll(copyItem);
+
+        codeArea.setOnContextMenuRequested(event -> {
+            context.show(codeArea, event.getScreenX(), event.getScreenY());
+            String selectedText = codeArea.getSelectedText();
+            copyItem.setDisable(selectedText == null || selectedText.isEmpty());
+        });
+
+        //hide context menu on click
+        codeArea.setOnMouseClicked(event -> {
+            context.hide();
+            if (event.isControlDown()) {
+                CharacterHit hit = codeArea.hit(event.getX(), event.getY());
+                int index = hit.getInsertionIndex();
+                String s = getWordAt(index);
+                for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
+                    if (field.name.equals(s)) {
+                        codeArea.moveTo(codeArea.position(field.line, 0).toOffset());
+                        return;
+                    }
+                }
+                for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
+                    if (routine.name.equals(s)) {
+                        codeArea.moveTo(codeArea.position(routine.line, 0).toOffset());
+                        return;
+                    }
+                }
+            }
+        });
+    }
+
+    private String getWordAt(int index) {
+        int start = index;
+        int end = index;
+        Matcher matcher = WORD.matcher(codeArea.getText());
+        while (matcher.find()) {
+            if (matcher.start() <= index && matcher.end() >= index) {
+                start = matcher.start();
+                end = matcher.end();
+            }
+        }
+        return codeArea.getText().substring(start, end);
+    }
+
+    private void initTooltips() {
+        Popup popup = new Popup();
+        Label popupMsg = new Label();
+        popupMsg.setStyle(
+                "-fx-background-color: #2e2e2e;" +
+                        "-fx-text-fill: #8a8a8a;" +
+                        "-fx-border-color: white;" +
+                        "-fx-padding: 5;");
+        popupMsg.setWrapText(true);
+        popupMsg.setMaxWidth(400);
+        popup.getContent().add(popupMsg);
+        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
+            int chIdx = e.getCharacterIndex();
+            Point2D pos = e.getScreenPosition();
+            String s = getWordAt(chIdx);
+            String s1 = Tooltips.get(s);
+            if (!s1.isEmpty()) {
+                popupMsg.setText(s + ": " + s1);
+                popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
+            } else {
+                for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
+                    if (field.name.equals(s) || s.equals("#" + field.name)) {
+                        popupMsg.setText("Type: " + field.type +
+                                "\nValue: " + field.address +
+                                (field.comment.isEmpty() ? "" : "\n" + field.comment));
+                        popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
+                        return;
+                    }
+                }
+                for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
+                    if (routine.name.equals(s)) {
+                        popupMsg.setText("Name: " + routine.name +
+                                (routine.comment.isEmpty() ? "" : "\n" + routine.comment));
+                        popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
+                        return;
+                    }
+                }
+            }
+        });
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> popup.hide());
+    }
+
     //checks changes between original code and the one inside editor and depending on the result changes tab title
     private void checkChanges() {
+        syntaxAnalysis = SyntaxAnalyzer.analyze(codeArea.getText());
         if (file == null) return;
         boolean old = changed;
         changed = !codeArea.getText().replaceAll("\n", "\r\n").equals(original);
