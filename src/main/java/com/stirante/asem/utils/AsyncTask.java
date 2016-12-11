@@ -12,6 +12,7 @@ public abstract class AsyncTask<P, T, R> {
     private AtomicBoolean cancelled = new AtomicBoolean(false);
     private AtomicBoolean done = new AtomicBoolean(false);
 
+    @SafeVarargs
     public final void execute(P... params) {
         new Thread() {
             @Override

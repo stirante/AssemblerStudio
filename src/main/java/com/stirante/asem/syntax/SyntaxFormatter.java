@@ -68,7 +68,7 @@ public class SyntaxFormatter {
                 }
             }
         }
-        return String.join("\n", lines);
+        return String.join("\n", (CharSequence[]) lines);
     }
 
 

@@ -262,10 +262,8 @@ public class CodeView extends Tab {
             alert.getButtonTypes().setAll(yes, no);
 
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == yes) {
+            if (result.isPresent() && result.get() == yes) {
                 save();
-            } else {
-                //Well, nothing
             }
         }
     }
@@ -276,8 +274,7 @@ public class CodeView extends Tab {
         if (o == null || getClass() != o.getClass()) return false;
 
         CodeView codeView = (CodeView) o;
-        if (file == null) return false;
-        return file.equals(codeView.file);
+        return file != null && file.equals(codeView.file);
 
     }
 

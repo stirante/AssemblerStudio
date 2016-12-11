@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
-
-
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <TextArea fx:id="description" editable="false" wrapText="true" text="Description" VBox.vgrow="ALWAYS" />
-      <HBox alignment="CENTER" prefWidth="200.0">
-         <children>
-            <TextField fx:id="bit7" alignment="CENTER" text="0" />
-            <TextField fx:id="bit6" alignment="CENTER" text="0" />
-            <TextField fx:id="bit5" alignment="CENTER" text="0" />
-            <TextField fx:id="bit4" alignment="CENTER" text="0" />
-            <TextField fx:id="bit3" alignment="CENTER" text="0" />
-            <TextField fx:id="bit2" alignment="CENTER" text="0" />
-            <TextField fx:id="bit1" alignment="CENTER" text="0" />
-            <TextField fx:id="bit0" alignment="CENTER" text="0" />
-         </children>
-      </HBox>
-   </children>
+   <TextArea fx:id="description" editable="false" wrapText="true" text="Description" VBox.vgrow="ALWAYS"/>
+   <HBox alignment="CENTER" prefWidth="200.0">
+      <children>
+         <TextField fx:id="bit7" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit6" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit5" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit4" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit3" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit2" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit1" alignment="CENTER" text="0"/>
+         <TextField fx:id="bit0" alignment="CENTER" text="0"/>
+      </children>
+   </HBox>
 </VBox>
