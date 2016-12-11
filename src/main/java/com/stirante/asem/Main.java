@@ -1,6 +1,7 @@
 package com.stirante.asem;
 
 import com.stirante.asem.ui.ByteCreator;
+import com.stirante.asem.ui.SegmentCreator;
 import com.stirante.asem.utils.AsyncTask;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -44,6 +45,8 @@ public class Main extends Application {
     public MenuItem undoMenuItem;
     @FXML
     public MenuItem redoMenuItem;
+    @FXML
+    public MenuItem segmentCreatorItem;
     private ByteCreator byteCreator;
 
     public static Stage getStage() {
@@ -71,6 +74,7 @@ public class Main extends Application {
         tabs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             saveMenuItem.setDisable(newValue == null);
             byteMenu.setDisable(newValue == null);
+            segmentCreatorItem.setDisable(newValue == null);
         });
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
@@ -267,6 +271,14 @@ public class Main extends Application {
                 return;
             }
             result.setText(selectedItem.run());
+        }
+    }
+
+    public void segmentCreator() {
+        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            String bits = SegmentCreator.create();
+            selectedItem.insert(bits);
         }
     }
 }

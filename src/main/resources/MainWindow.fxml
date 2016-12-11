@@ -27,6 +27,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#byteCreatorIe" text="Insert IE byte" />
                     </items>
                   </Menu>
+                   <MenuItem fx:id="segmentCreatorItem" disable="true" mnemonicParsing="false" onAction="#segmentCreator" text="Segment creator" />
                </items></Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
