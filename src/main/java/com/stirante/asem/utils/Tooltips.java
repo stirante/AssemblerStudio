@@ -1,5 +1,6 @@
 package com.stirante.asem.utils;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -10,7 +11,7 @@ public class Tooltips {
     private static ResourceBundle messages;
 
     static {
-        messages = ResourceBundle.getBundle("Tooltips");
+        messages = ResourceBundle.getBundle("tooltips", Locale.ROOT);
     }
 
     public static String get(String key) {
