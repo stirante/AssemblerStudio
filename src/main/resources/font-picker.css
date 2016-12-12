@@ -1,0 +1,26 @@
+.combo-box-base.font-picker {
+}
+
+.combo-box-base.font-picker > .arrow-button {
+}
+
+.combo-box-base.font-picker > .font-label {
+    -fx-padding: 4 4 4 8;
+    -fx-font-size: 12;
+}
+
+.font-picker-popup {
+    -fx-background-color: derive(-fx-color, -30%), -fx-background;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 1;
+    -fx-alignment: CENTER;
+    -fx-spacing: 0.833333em;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 12, 0.0, 0, 8);
+}
+
+.font-picker-popup > .preview-label {
+    /*-fx-border-color : derive(-fx-color,-30%);*/
+    -fx-alignment: center;
+    /*-fx-border-radius: 2;*/
+}

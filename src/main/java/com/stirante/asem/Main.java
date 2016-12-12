@@ -1,7 +1,9 @@
 package com.stirante.asem;
 
 import com.stirante.asem.ui.ByteCreator;
+import com.stirante.asem.ui.CodeView;
 import com.stirante.asem.ui.SegmentCreator;
+import com.stirante.asem.ui.Settings;
 import com.stirante.asem.utils.AsyncTask;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -105,13 +107,17 @@ public class Main extends Application {
     public void onOpenClicked() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open file");
+        String path = Settings.getInstance().getLastPath();
+        if (path != null && !path.isEmpty()) fileChooser.setInitialDirectory(new File(path));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("ASM file", "*.asm"),
                 new FileChooser.ExtensionFilter("All files", "*.*")
         );
         File f = fileChooser.showOpenDialog(stage);
-        if (f != null)
+        if (f != null) {
+            Settings.getInstance().setLastPath(f.getParentFile().getAbsolutePath());
             openFile(f);
+        }
     }
 
     public void onCloseClicked() {
@@ -280,5 +286,9 @@ public class Main extends Application {
             String bits = SegmentCreator.create();
             selectedItem.insert(bits);
         }
+    }
+
+    public void onSettingsClicked() {
+        Settings.getInstance().show();
     }
 }

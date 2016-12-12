@@ -10,6 +10,7 @@
             <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#onOpenClicked" text="Open"/>
             <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" onAction="#onSaveClicked"
                       text="Save"/>
+            <MenuItem mnemonicParsing="false" onAction="#onSettingsClicked" text="Settings"/>
             <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#onCloseClicked" text="Close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">

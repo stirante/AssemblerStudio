@@ -1,5 +1,6 @@
-package com.stirante.asem;
+package com.stirante.asem.ui;
 
+import com.stirante.asem.Main;
 import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
 import com.stirante.asem.utils.AsyncTask;
@@ -55,6 +56,8 @@ public class CodeView extends Tab {
         initClicks();
         initTooltips();
 
+        codeArea.setStyle("-fx-font-family: " + Settings.getInstance().getFont().getFamily() + ";-fx-font-size: " + Settings.getInstance().getFont().getSize() + ";");
+        Settings.getInstance().fontProperty().addListener((observable, oldValue, newValue) -> codeArea.setStyle("-fx-font-family: " + newValue.getFamily() + ";-fx-font-size: " + newValue.getSize() + ";"));
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.richChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
@@ -222,12 +225,15 @@ public class CodeView extends Tab {
         if (file == null) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save file");
+            String path = Settings.getInstance().getLastPath();
+            if (path != null && !path.isEmpty()) fileChooser.setInitialDirectory(new File(path));
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("ASM file", "*.asm"),
                     new FileChooser.ExtensionFilter("All files", "*.*")
             );
             File file = fileChooser.showSaveDialog(Main.getStage());
             if (file != null) {
+                Settings.getInstance().setLastPath(file.getParentFile().getAbsolutePath());
                 this.file = file;
             } else {
                 return false;
