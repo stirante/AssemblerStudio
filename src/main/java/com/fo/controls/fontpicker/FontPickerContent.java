@@ -59,6 +59,7 @@ public class FontPickerContent extends GridPane {
     }
 
     private void initGui() {
+        newFont = fontPicker.getValue();
         setPrefSize(200, 230);
         getStylesheets().addAll(getClass().getResource("/style.css").toExternalForm(), getClass().getResource("/font-picker.css").toExternalForm());
         getColumnConstraints().addAll(new ColumnConstraints(40), new ColumnConstraints(160));
@@ -72,6 +73,7 @@ public class FontPickerContent extends GridPane {
         previewLabel = new Label("ABCDEF abcdef 0123456");
         previewLabel.setMaxWidth(Double.MAX_VALUE);
         previewLabel.setMaxHeight(Double.MAX_VALUE);
+        previewLabel.setFont(newFont);
         previewLabel.getStyleClass().add("preview-label");
         add(previewLabel, 0, 1, 2, 2);
 
@@ -85,6 +87,7 @@ public class FontPickerContent extends GridPane {
         sizeSpinner = new Spinner<>(1, 100, 12);
         sizeSpinner.setEditable(true);
         sizeSpinner.setPrefWidth(70);
+        sizeSpinner.getValueFactory().setValue((int) newFont.getSize());
         add(sizeSpinner, 1, 4, 1, 1);
 
         add(new Label("Style:"), 0, 5, 1, 1);
@@ -104,7 +107,13 @@ public class FontPickerContent extends GridPane {
         buttonsHBox.getChildren().addAll(okButton, cancelButton);
         add(buttonsHBox, 1, 6, 1, 1);
 
-        fontComboBox.getSelectionModel().select(0);
+        for (String s : fontComboBox.getItems()) {
+            if (s.equals(newFont.getFamily())) {
+                fontComboBox.getSelectionModel().select(s);
+                break;
+            }
+        }
+//        fontComboBox.getSelectionModel().select(0);
         fontComboBox.valueProperty().addListener(observable -> changeFont());
         fontComboBox.setCellFactory((ListView<String> listView) -> {
             final ListCell<String> cell = new ListCell<String>() {

@@ -364,6 +364,7 @@ public class CodeView extends Tab {
             while ((line = br.readLine()) != null) {
                 sb.append(line).append('\n');
             }
+            br.close();
             sb.append("\n[").append(getTime()).append("] Compiler terminated with code ").append(code);
             return sb.toString();
         } catch (IOException e) {
