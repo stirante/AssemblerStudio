@@ -104,6 +104,10 @@ public class Main extends Application {
             event.setDropCompleted(success);
             event.consume();
         });
+        root.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.F9) onCompileClicked();
+            else if (event.getCode() == KeyCode.F10) onRunClicked();
+        });
         //load file from startup parameters
         List<String> args = getParameters().getUnnamed();
         if (!args.isEmpty()) openFile(new File(args.get(0)));
