@@ -406,13 +406,13 @@ public class CodeView extends Tab {
         }
     }
 
-    public void autocomplete(String item) {
+    void autocomplete(String item) {
         item = item.substring(autoIndex);
         insert(item);
         autocomplete = false;
     }
 
-    public void goToLine(int line) {
-        codeArea.moveTo(codeArea.position(line, 0).toOffset());
+    void goToLine(int line) {
+        codeArea.moveTo(codeArea.position(line - 1, 0).toOffset());
     }
 }
