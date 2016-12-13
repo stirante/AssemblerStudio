@@ -30,7 +30,9 @@ package com.fo.controls.fontpicker;
 import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Font;
+import javafx.util.StringConverter;
 
 public class FontPickerSkin extends ComboBoxPopupControl<Font> {
     private final Label displayNode;
@@ -76,15 +78,13 @@ public class FontPickerSkin extends ComboBoxPopupControl<Font> {
         return fontPickerContent;
     }
 
-//    @Override
-//    protected TextField getEditor() {
-//        return null;
-//    }
-//
-//    @Override
-//    protected StringConverter<Font> getConverter() {
-//        return null;
-//    }
+    protected TextField getEditor() {
+        return null;
+    }
+
+    protected StringConverter<Font> getConverter() {
+        return null;
+    }
 
     @Override
     public Node getDisplayNode() {
