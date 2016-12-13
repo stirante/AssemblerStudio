@@ -30,7 +30,6 @@ public class Settings {
         node = new VBox();
         Font font = getFont();
         fontProperty = new SimpleObjectProperty<>(font);
-        System.out.println(font);
         this.font = new FontPicker();
         this.font.setValue(font);
         node.getChildren().add(this.font);

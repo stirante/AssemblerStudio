@@ -7,28 +7,31 @@ import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.Tooltips;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CharacterHit;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.MouseOverTextEvent;
+import org.fxmisc.richtext.*;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by stirante
@@ -46,6 +49,10 @@ public class CodeView extends Tab {
     private String original = "";
     private SyntaxAnalyzer.AnalysisResult syntaxAnalysis;
 
+    private int autoIndex = 0;
+    private AutocompletePopup autocompletePopup;
+    private boolean autocomplete = false;
+
     public CodeView(File f) {
         this.file = f;
         //handle tab close
@@ -55,6 +62,7 @@ public class CodeView extends Tab {
 
         initClicks();
         initTooltips();
+        initAutocomplete();
 
         codeArea.setStyle("-fx-font-family: " + Settings.getInstance().getFont().getFamily() + ";-fx-font-size: " + Settings.getInstance().getFont().getSize() + ";");
         Settings.getInstance().fontProperty().addListener((observable, oldValue, newValue) -> codeArea.setStyle("-fx-font-family: " + newValue.getFamily() + ";-fx-font-size: " + newValue.getSize() + ";"));
@@ -87,6 +95,41 @@ public class CodeView extends Tab {
 
     private static String getTime() {
         return SimpleDateFormat.getTimeInstance().format(new Date(System.currentTimeMillis()));
+    }
+
+    private void initAutocomplete() {
+        Method m;
+        try {
+            m = StyledTextArea.class.getDeclaredMethod("getCaretBoundsOnScreen");
+            m.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return;
+        }
+        autocompletePopup = new AutocompletePopup(this);
+        Method finalM = m;
+        codeArea.setOnKeyPressed(event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.SPACE) {
+                String s = getWordAt(codeArea.getCaretPosition());
+                ArrayList<String> suggestions = new ArrayList<>();
+                suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
+                suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
+                if (suggestions.isEmpty()) return;
+                try {
+                    Optional invoke = (Optional) finalM.invoke(codeArea);
+                    if (invoke.isPresent()) {
+                        Bounds b = (Bounds) invoke.get();
+                        autoIndex = s.length();
+                        autocompletePopup.setSuggestions(suggestions);
+                        autocomplete = true;
+                        autocompletePopup.show(codeArea, b.getMinX(), b.getMaxY());
+                        event.consume();
+                    }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void loadFile() {
@@ -135,6 +178,8 @@ public class CodeView extends Tab {
         //hide context menu on click
         codeArea.setOnMouseClicked(event -> {
             context.hide();
+            autocompletePopup.hide();
+            autocomplete = false;
             if (event.isControlDown()) {
                 CharacterHit hit = codeArea.hit(event.getX(), event.getY());
                 int index = hit.getInsertionIndex();
@@ -214,6 +259,17 @@ public class CodeView extends Tab {
     //checks changes between original code and the one inside editor and depending on the result changes tab title
     private void checkChanges() {
         syntaxAnalysis = SyntaxAnalyzer.analyze(codeArea.getText());
+        if (autocomplete) {
+            String s = getWordAt(codeArea.getCaretPosition());
+            autoIndex = s.length();
+            ArrayList<String> suggestions = new ArrayList<>();
+            suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
+            suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
+            if (suggestions.isEmpty()) {
+                autocomplete = false;
+                autocompletePopup.hide();
+            } else autocompletePopup.setSuggestions(suggestions);
+        }
         if (file == null) return;
         boolean old = changed;
         changed = !codeArea.getText().replaceAll("\n", "\r\n").equals(original);
@@ -347,5 +403,11 @@ public class CodeView extends Tab {
             e.printStackTrace();
             return "Failed to run emulator!\n" + e.getMessage();
         }
+    }
+
+    public void autocomplete(String item) {
+        item = item.substring(autoIndex);
+        insert(item);
+        autocomplete = false;
     }
 }
