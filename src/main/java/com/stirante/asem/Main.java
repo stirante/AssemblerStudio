@@ -10,9 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -88,6 +86,24 @@ public class Main extends Application {
         stage = primaryStage;
         //Initialize ByteCreator
         byteCreator = new ByteCreator();
+        //handle DnD
+        root.setOnDragOver(event -> {
+            if (event.getGestureSource() != root && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            event.consume();
+        });
+        root.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            System.out.println(db.getFiles());
+            boolean success = false;
+            if (db.hasFiles()) {
+                db.getFiles().forEach(this::openFile);
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
         //load file from startup parameters
         List<String> args = getParameters().getUnnamed();
         if (!args.isEmpty()) openFile(new File(args.get(0)));
