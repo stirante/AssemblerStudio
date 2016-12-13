@@ -411,4 +411,8 @@ public class CodeView extends Tab {
         insert(item);
         autocomplete = false;
     }
+
+    public void goToLine(int line) {
+        codeArea.moveTo(codeArea.position(line, 0).toOffset());
+    }
 }

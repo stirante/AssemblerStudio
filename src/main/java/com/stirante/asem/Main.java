@@ -1,9 +1,6 @@
 package com.stirante.asem;
 
-import com.stirante.asem.ui.ByteCreator;
-import com.stirante.asem.ui.CodeView;
-import com.stirante.asem.ui.SegmentCreator;
-import com.stirante.asem.ui.Settings;
+import com.stirante.asem.ui.*;
 import com.stirante.asem.utils.AsyncTask;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -11,9 +8,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class Main extends Application {
     @FXML
     public TabPane tabs;
     @FXML
-    public TextArea result;
+    public BorderPane result;
     @FXML
     public MenuItem saveMenuItem;
     @FXML
@@ -48,6 +47,7 @@ public class Main extends Application {
     @FXML
     public MenuItem segmentCreatorItem;
     private ByteCreator byteCreator;
+    private CompileOutputView compileResult;
 
     public static Stage getStage() {
         return stage;
@@ -75,6 +75,7 @@ public class Main extends Application {
             saveMenuItem.setDisable(newValue == null);
             byteMenu.setDisable(newValue == null);
             segmentCreatorItem.setDisable(newValue == null);
+            compileResult.setText("");
         });
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
@@ -86,6 +87,26 @@ public class Main extends Application {
         stage = primaryStage;
         //Initialize ByteCreator
         byteCreator = new ByteCreator();
+        //handle result
+        compileResult = new CompileOutputView(this);
+//        compileResult.setText("\n" +
+//                "MCS-51 Family Macro Assembler ASEM-51 V1.3\n" +
+//                "\n" +
+//                "test.asm(4): illegal constant\n" +
+//                "test.asm(25): symbol not defined\n" +
+//                "test.asm(48): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "test.asm(49): symbol not defined\n" +
+//                "\n" +
+//                "             4 errors detected\n");
+        result.setCenter(new VirtualizedScrollPane<>(compileResult));
         //handle DnD
         root.setOnDragOver(event -> {
             if (event.getGestureSource() != root && event.getDragboard().hasFiles()) {
@@ -161,7 +182,7 @@ public class Main extends Application {
         final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
             if (!selectedItem.save()) {
-                result.setText("You need to save file first!");
+                compileResult.setText("You need to save file first!");
                 return;
             }
 
@@ -173,7 +194,7 @@ public class Main extends Application {
 
                 @Override
                 public void onPostExecute(String compileResult) {
-                    result.setText(compileResult);
+                    Main.this.compileResult.setText(compileResult);
                 }
             }.execute();
         }
@@ -297,10 +318,10 @@ public class Main extends Application {
         final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
             if (!selectedItem.save()) {
-                result.setText("You need to save and compile file first!");
+                compileResult.setText("You need to save and compile file first!");
                 return;
             }
-            result.setText(selectedItem.run());
+            compileResult.setText(selectedItem.run());
         }
     }
 
