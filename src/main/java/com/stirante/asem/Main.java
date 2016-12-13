@@ -149,8 +149,12 @@ public class Main extends Application {
         alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         alert.setTitle("About");
         alert.setHeaderText("AssemblerEditor51 v." + VERSION);
-        alert.setContentText("Author: Piotr Brzozowski");
+        alert.setContentText("Author: Piotr \"stirante\" Brzozowski");
         alert.showAndWait();
+    }
+
+    public void onDonateClicked() {
+        getHostServices().showDocument("https://paypal.me/stirante");
     }
 
     public void onCompileClicked() {
