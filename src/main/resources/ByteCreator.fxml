@@ -7,15 +7,13 @@
 <VBox xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <TextArea fx:id="description" editable="false" wrapText="true" text="Description" VBox.vgrow="ALWAYS"/>
    <HBox alignment="CENTER" prefWidth="200.0">
-      <children>
-         <TextField fx:id="bit7" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit6" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit5" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit4" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit3" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit2" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit1" alignment="CENTER" text="0"/>
-         <TextField fx:id="bit0" alignment="CENTER" text="0"/>
-      </children>
+      <TextField fx:id="bit7" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit6" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit5" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit4" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit3" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit2" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit1" alignment="CENTER" text="0"/>
+      <TextField fx:id="bit0" alignment="CENTER" text="0"/>
    </HBox>
 </VBox>

@@ -8,7 +8,7 @@ import java.util.HashMap;
  */
 public class ConfigManager {
 
-    private static HashMap<String, Object> cfg = new HashMap<>();
+    private static HashMap cfg = new HashMap<>();
     private static File f;
 
     static {
@@ -18,7 +18,7 @@ public class ConfigManager {
     public static void load() {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-            cfg = (HashMap<String, Object>) ois.readObject();
+            cfg = (HashMap) ois.readObject();
             if (cfg == null) cfg = new HashMap<>();//probably unreachable
             ois.close();
         } catch (IOException | ClassNotFoundException e) {
@@ -37,7 +37,7 @@ public class ConfigManager {
         }
     }
 
-    public static HashMap<String, Object> getMap() {
+    public static HashMap getMap() {
         return cfg;
     }
 

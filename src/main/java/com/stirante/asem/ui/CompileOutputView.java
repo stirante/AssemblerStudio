@@ -70,9 +70,7 @@ public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLin
                 text.setUnderline(true);
                 text.setFill(Color.RED);
                 text.setBackgroundColor(Color.DARKRED);
-                text.setOnMouseClicked(click -> {
-                    ((CodeView) app.tabs.getSelectionModel().getSelectedItem()).goToLine(line);
-                });
+                text.setOnMouseClicked(click -> ((CodeView) app.tabs.getSelectionModel().getSelectedItem()).goToLine(line));
             }
         }
     }

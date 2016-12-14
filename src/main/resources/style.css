@@ -83,7 +83,3 @@
     -fx-fill: #d53ec5;
 }
 
-.error {
-    -fx-fill: #fffd5d;
-    -fx-underline: true;
-}

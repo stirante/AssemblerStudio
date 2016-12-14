@@ -55,12 +55,16 @@ public class FontPickerBehavior extends ComboBoxBaseBehavior<Font> {
 
     @Override
     protected void callAction(String name) {
-        if (OPEN_ACTION.equals(name)) {
-            show();
-        } else if (CLOSE_ACTION.equals(name)) {
-            hide();
-        } else {
-            super.callAction(name);
+        switch (name) {
+            case OPEN_ACTION:
+                show();
+                break;
+            case CLOSE_ACTION:
+                hide();
+                break;
+            default:
+                super.callAction(name);
+                break;
         }
     }
 

@@ -24,7 +24,7 @@ public class Settings {
     private static Settings instance;
     private final FontPicker font;
     private VBox node;
-    private HashMap<String, Object> map;
+    private HashMap map;
     private ObjectProperty<Font> fontProperty;
 
     public Settings() {
