@@ -53,10 +53,10 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
-set CLASSPATH=AssemblerEditor51.jar
+set CLASSPATH=AssemblerStudio.jar
 
 @rem Execute
-start "asem" /B "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS%  -classpath "%CLASSPATH%" com.stirante.asem.Main %CMD_LINE_ARGS%
+start "AssemblerStudio" /B "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS%  -classpath "%CLASSPATH%" com.stirante.asem.Main %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

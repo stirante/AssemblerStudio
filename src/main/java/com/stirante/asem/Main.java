@@ -68,7 +68,7 @@ public class Main extends Application {
         //set stylesheet
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setTitle("AssemblerView51");
+        primaryStage.setTitle("Assembler Studio");
         //catch close request and check for unsaved files
         primaryStage.setOnCloseRequest(event -> tabs.getTabs().forEach(tab -> ((CodeView) tab).onClose()));
         //disable save menu item if there is no active tab
@@ -154,7 +154,7 @@ public class Main extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         alert.setTitle("About");
-        alert.setHeaderText("AssemblerEditor51 v." + VERSION);
+        alert.setHeaderText("Assembler Studio v." + VERSION);
         alert.setContentText("Author: Piotr \"stirante\" Brzozowski");
         alert.showAndWait();
     }
