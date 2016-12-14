@@ -47,7 +47,7 @@ public class Main extends Application {
     @FXML
     public MenuItem segmentCreatorItem;
     private ByteCreator byteCreator;
-    private CompileOutputView compileResult;
+    public CompileOutputView compileResult;
 
     public static Stage getStage() {
         return stage;
@@ -89,23 +89,6 @@ public class Main extends Application {
         byteCreator = new ByteCreator();
         //handle result
         compileResult = new CompileOutputView(this);
-//        compileResult.setText("\n" +
-//                "MCS-51 Family Macro Assembler ASEM-51 V1.3\n" +
-//                "\n" +
-//                "test.asm(4): illegal constant\n" +
-//                "test.asm(25): symbol not defined\n" +
-//                "test.asm(48): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "test.asm(49): symbol not defined\n" +
-//                "\n" +
-//                "             4 errors detected\n");
         result.setCenter(new VirtualizedScrollPane<>(compileResult));
         //handle DnD
         root.setOnDragOver(event -> {
@@ -136,7 +119,7 @@ public class Main extends Application {
 
     //actually open tab for file, not file itself
     private void openFile(File f) {
-        Tab tab = new CodeView(f);
+        Tab tab = new CodeView(this, f);
         if (!tabs.getTabs().contains(tab)) {
             tabs.getTabs().add(tab);
             tabs.getSelectionModel().select(tab);

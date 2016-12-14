@@ -43,6 +43,7 @@ public class CodeView extends Tab {
     public StackPane content;
     private ContextMenu context;
     private MenuItem copyItem;
+    private Main app;
     private File file;
     private CodeArea codeArea;
     private boolean changed = false;
@@ -53,7 +54,8 @@ public class CodeView extends Tab {
     private AutocompletePopup autocompletePopup;
     private boolean autocomplete = false;
 
-    public CodeView(File f) {
+    public CodeView(Main app, File f) {
+        this.app = app;
         this.file = f;
         //handle tab close
         setOnCloseRequest(event -> onClose());
@@ -143,7 +145,6 @@ public class CodeView extends Tab {
                     } catch (IOException e) {
                         e.printStackTrace();
                         return "";
-                        //TODO:Umm, handle it?
                     }
                 }
 
@@ -259,6 +260,17 @@ public class CodeView extends Tab {
     //checks changes between original code and the one inside editor and depending on the result changes tab title
     private void checkChanges() {
         syntaxAnalysis = SyntaxAnalyzer.analyze(codeArea.getText());
+        if (!syntaxAnalysis.collisions.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (SyntaxAnalyzer.Collision collision : syntaxAnalysis.collisions) {
+                sb.append("Address collision with address ").append(collision.address).append(" at:\n");
+                for (Integer line : collision.lines) {
+                    sb.append("\t").append(getText().replaceAll("\\*", "")).append("(").append(line).append(")\n");
+                }
+            }
+            app.compileResult.setText(sb.toString());
+        } else
+            if (app.compileResult.getText().startsWith("Address")) app.compileResult.setText("");
         if (autocomplete) {
             String s = getWordAt(codeArea.getCaretPosition());
             autoIndex = s.length();

@@ -3,6 +3,7 @@ package com.stirante.asem.syntax;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by stirante
@@ -45,6 +46,45 @@ public class SyntaxAnalyzer {
                 result.routines.add(r);
             }
         }
+        ArrayList<Collision> c = new ArrayList<>();
+        for (Field field : result.fields) {
+            if (field.type.equalsIgnoreCase("equ")) continue;
+            int address;
+            String a = field.address.replace("#", "");
+            if (a.contains("b")) {
+                try {
+                    address = Integer.parseInt(a.replaceAll("b", ""), 2);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            } else if (a.contains("h")) {
+                try {
+                    address = Integer.parseInt(a.replaceAll("h", ""), 16);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            } else {
+                try {
+                    address = Integer.parseInt(a.replaceAll("d", ""));
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            }
+            boolean found = false;
+            for (Collision collision : c) {
+                if (collision.address == address) {
+                    collision.lines.add(field.line + 1);
+                    found = true;
+                }
+            }
+            if (!found) {
+                Collision e = new Collision();
+                e.lines.add(field.line + 1);
+                e.address = address;
+                c.add(e);
+            }
+        }
+        result.collisions.addAll(c.stream().filter(collision -> collision.lines.size() > 1).collect(Collectors.toList()));
         return result;
     }
 
@@ -52,6 +92,7 @@ public class SyntaxAnalyzer {
     public static class AnalysisResult {
         public ArrayList<Field> fields = new ArrayList<>();
         public ArrayList<Routine> routines = new ArrayList<>();
+        public ArrayList<Collision> collisions = new ArrayList<>();
 
         @Override
         public String toString() {
@@ -92,6 +133,18 @@ public class SyntaxAnalyzer {
                     "name='" + name + '\'' +
                     ", comment='" + comment + '\'' +
                     ", line=" + line +
+                    '}';
+        }
+    }
+
+    public static class Collision {
+        public int address;
+        public ArrayList<Integer> lines = new ArrayList<>();
+
+        @Override
+        public String toString() {
+            return "Collision{" +
+                    "lines=" + lines +
                     '}';
         }
     }

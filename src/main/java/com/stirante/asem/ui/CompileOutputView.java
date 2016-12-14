@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLine, CompileOutputView.ErrorLine> {
 
-    private static final Pattern PATTERN = Pattern.compile(".+\\(([0-9]+)\\):.+");
+    private static final Pattern PATTERN = Pattern.compile(".+\\(([0-9]+)\\).*");
     private Main app;
 
     public CompileOutputView(Main main) {
@@ -62,13 +62,6 @@ public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLin
         }
 
         void applyToText(TextFlow text) {
-//            if (line >= 0) {
-//                text.setCursor(Cursor.HAND);
-//                text.setStyle("-fx-underline: true;-fx-fill: red;");
-//                text.setOnMouseClicked(click -> {
-//                    System.out.println("Go to " + line);
-//                });
-//            }
         }
 
         public void applyToText(TextExt text) {
