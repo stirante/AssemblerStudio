@@ -1,6 +1,7 @@
 package com.stirante.asem.utils;
 
 import com.stirante.asem.Main;
+import com.stirante.asem.ui.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -17,38 +18,24 @@ import java.util.Optional;
  */
 public class UpdateUtil {
 
-    private static final String ZIP_VERSION = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/zipVersion.txt";
     private static final String JAR_VERSION = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/version.txt";
-    private static final String JAR = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/AssemblerEditor51.jar";
     private static final String ZIP = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/AssemblerEditor51.zip";
     private static final String ZIP_PORTABLE = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/AssemblerEditor51%20-%20Portable.zip";
 
     public static void check(Main app) {
+        if (!Settings.getInstance().isCheckingUpdate()) return;
         double local = Double.parseDouble(Main.VERSION);
         double[] remote = new double[1];
-        double[] remoteZip = new double[1];
         new AsyncTask<Void, Void, Void>() {
 
             @Override
             public Void doInBackground(Void[] params) {
                 try {
-                    URLConnection connection = new URL(ZIP_VERSION).openConnection();
+                    URLConnection connection = new URL(JAR_VERSION).openConnection();
                     InputStream is = connection.getInputStream();
                     BufferedReader r = new BufferedReader(new InputStreamReader(is));
                     StringBuilder total = new StringBuilder();
                     String line;
-                    while ((line = r.readLine()) != null) {
-                        if (total.length() != 0)
-                            total.append("\n");//Actually it will never occur but why not?
-                        total.append(line);
-                    }
-                    remoteZip[0] = Double.parseDouble(total.toString());
-                    r.close();
-
-                    connection = new URL(JAR_VERSION).openConnection();
-                    is = connection.getInputStream();
-                    r = new BufferedReader(new InputStreamReader(is));
-                    total = new StringBuilder();
                     while ((line = r.readLine()) != null) {
                         if (total.length() != 0)
                             total.append("\n");//Actually it will never occur but why not?

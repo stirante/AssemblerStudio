@@ -6,10 +6,7 @@ import com.stirante.asem.utils.SerializableFont;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -23,14 +20,16 @@ public class Settings {
 
     private static Settings instance;
     private final FontPicker font;
+    private final CheckBox update;
     private VBox node;
-    private HashMap map;
+    private HashMap<String, Object> map;
     private ObjectProperty<Font> fontProperty;
 
     public Settings() {
         ConfigManager.load();
         map = ConfigManager.getMap();
-        node = new VBox();
+        node = new VBox(10);
+        node.setPrefWidth(300);
         Font f = getFont();
         fontProperty = new SimpleObjectProperty<>(f);
         font = new FontPicker();
@@ -40,6 +39,14 @@ public class Settings {
         Label l = new Label("Font: ");
         fontBox.getChildren().addAll(l, font);
         node.getChildren().add(fontBox);
+
+        update = new CheckBox();
+        update.setSelected(isCheckingUpdate());
+        HBox updateBox = new HBox();
+        updateBox.setAlignment(Pos.CENTER);
+        l = new Label("Check updates: ");
+        updateBox.getChildren().addAll(l, update);
+        node.getChildren().add(updateBox);
     }
 
     public static Settings getInstance() {
@@ -58,6 +65,7 @@ public class Settings {
         dialog.getDialogPane().setContent(node);
         dialog.showAndWait();
         setFont(font.getValue());
+        setCheckingUpdate(update.isSelected());
         ConfigManager.save();
     }
 
@@ -82,5 +90,14 @@ public class Settings {
     public void setLastPath(String p) {
         map.put("last_path", p);
         ConfigManager.save();
+    }
+
+    public boolean isCheckingUpdate() {
+        if (!map.containsKey("update_check")) return true;
+        return (boolean) map.get("update_check");
+    }
+
+    public void setCheckingUpdate(boolean value) {
+        map.put("update_check", value);
     }
 }
