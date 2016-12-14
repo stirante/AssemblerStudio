@@ -11,3 +11,4 @@ Very simple editor for asm51 code. Can also compile files.
 Just run AssemblerEditor51.bat file
     
 ##### Uses RichTextFX library by TomasMikula
+##### Uses Font Picker from https://github.com/farrukh-obaid/custom-controls
