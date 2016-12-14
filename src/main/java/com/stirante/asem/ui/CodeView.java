@@ -19,6 +19,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.*;
+import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +39,10 @@ import java.util.stream.Collectors;
  */
 public class CodeView extends Tab {
     private static final Pattern WORD = Pattern.compile("[\\w.]+");
+    private static final Pattern MNEMONIC = Pattern.compile("^\\s*(\\w+)$");
+    private static final String[] MNEMONIC_ARRAY = new String[]{"ACALL", "ADD", "ADDC", "AJMP", "ANL", "CJNE", "CLR", "CPL", "DA", "DEC", "DIV", "DJNZ", "INC", "JB", "JBC", "JC", "JMP", "JNB"
+            , "JNC", "JNZ", "JZ", "LCALL", "LJMP", "MOV", "MOVC", "MOVX", "MUL", "NOP", "ORL", "POP", "PUSH", "RET", "RETI", "RL", "RLC", "RR", "RRC", "SETB", "SJMP", "SUBB", "SWAP", "XCH", "XCHD", "XRL"
+    };
     private static int newCounter = 1;
     @FXML
     public StackPane content;
@@ -112,10 +117,24 @@ public class CodeView extends Tab {
         Method finalM = m;
         codeArea.setOnKeyPressed(event -> {
             if (event.isControlDown() && event.getCode() == KeyCode.SPACE) {
+                TwoDimensional.Position caret = codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward);
+                TwoDimensional.Position lineStart = codeArea.position(caret.getMajor(), 0);
+                String line = codeArea.getText().substring(lineStart.toOffset(), caret.toOffset());
+                boolean isMnemonic = MNEMONIC.matcher(line).matches();
                 String s = getWordAt(codeArea.getCaretPosition());
                 ArrayList<String> suggestions = new ArrayList<>();
-                suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
-                suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
+                if (isMnemonic) {
+                    boolean upperCase = Character.isUpperCase(s.charAt(0));
+                    String s1 = s.toUpperCase();
+                    for (String s2 : MNEMONIC_ARRAY) {
+                        if (s2.startsWith(s1)) {
+                            suggestions.add(upperCase ? s2 + "\t\t" : s2.toLowerCase() + "\t\t");
+                        }
+                    }
+                } else {
+                    suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
+                    suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
+                }
                 if (suggestions.isEmpty()) return;
                 try {
                     Optional invoke = (Optional) finalM.invoke(codeArea);
@@ -269,8 +288,7 @@ public class CodeView extends Tab {
                 }
             }
             app.compileResult.setText(sb.toString());
-        } else
-            if (app.compileResult.getText().startsWith("Address")) app.compileResult.setText("");
+        } else if (app.compileResult.getText().startsWith("Address")) app.compileResult.setText("");
         if (autocomplete) {
             String s = getWordAt(codeArea.getCaretPosition());
             autoIndex = s.length();
