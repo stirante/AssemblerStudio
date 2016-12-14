@@ -326,8 +326,8 @@ public class CodeView extends Tab {
     public void onClose() {
         if (changed) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Unsaved changes");
-            alert.setHeaderText("You have unsaved changes in tab " + getText().substring(0, getText().length() - 1));
+            alert.setTitle("Unsaved changes in tab " + getText().substring(0, getText().length() - 1));
+            alert.setHeaderText(null);
             alert.setContentText("Do you want to save it?");
             alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 

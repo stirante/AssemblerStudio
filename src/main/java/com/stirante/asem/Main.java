@@ -2,6 +2,7 @@ package com.stirante.asem;
 
 import com.stirante.asem.ui.*;
 import com.stirante.asem.utils.AsyncTask;
+import com.stirante.asem.utils.UpdateUtil;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 public class Main extends Application {
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
     private static Stage stage;
     //Elements from layout
     @FXML
@@ -115,6 +116,7 @@ public class Main extends Application {
         //load file from startup parameters
         List<String> args = getParameters().getUnnamed();
         if (!args.isEmpty()) openFile(new File(args.get(0)));
+        UpdateUtil.check(this);
     }
 
     //actually open tab for file, not file itself
