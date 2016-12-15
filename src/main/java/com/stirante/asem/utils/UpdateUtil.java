@@ -24,7 +24,6 @@ public class UpdateUtil {
 
     public static void check(Main app) {
         if (!Settings.getInstance().isCheckingUpdate()) return;
-        double local = Double.parseDouble(Main.VERSION);
         double[] remote = new double[1];
         new AsyncTask<Void, Void, Void>() {
 
@@ -51,7 +50,7 @@ public class UpdateUtil {
 
             @Override
             public void onPostExecute(Void r) {
-                if (local < remote[0]) {
+                if (Main.VERSION < remote[0]) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("There is new version!");
                     alert.setHeaderText(null);
