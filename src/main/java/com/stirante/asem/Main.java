@@ -47,8 +47,8 @@ public class Main extends Application {
     public MenuItem redoMenuItem;
     @FXML
     public MenuItem segmentCreatorItem;
-    private ByteCreator byteCreator;
     public CompileOutputView compileResult;
+    private ByteCreator byteCreator;
 
     public static Stage getStage() {
         return stage;
@@ -320,5 +320,9 @@ public class Main extends Application {
 
     public void onSettingsClicked() {
         Settings.getInstance().show();
+    }
+
+    public void onKeyboardHelpClicked() {
+        HelpDialog.show();
     }
 }

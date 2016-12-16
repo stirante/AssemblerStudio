@@ -70,6 +70,7 @@ public class SyntaxHighlighter {
 
             @Override
             public void onPostExecute(StyleSpans<Collection<String>> result) {
+                if (isCancelled()) return;
                 try {
                     text.setStyleSpans(0, result);
                 } catch (Exception e) {

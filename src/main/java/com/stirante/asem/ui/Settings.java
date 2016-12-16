@@ -71,7 +71,7 @@ public class Settings {
 
     public Font getFont() {
         SerializableFont font = (SerializableFont) map.get("font");
-        return font != null ? font.getFont() : Font.getDefault();
+        return font != null ? font.getFont() : Font.font("Consolas");
     }
 
     public void setFont(Font f) {
