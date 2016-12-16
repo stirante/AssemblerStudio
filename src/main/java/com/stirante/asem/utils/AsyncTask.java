@@ -19,7 +19,8 @@ public abstract class AsyncTask<P, T, R> {
             public void run() {
                 R result = doInBackground(params);
                 done.set(true);
-                Platform.runLater(() -> onPostExecute(result));
+                if (!isCancelled())
+                    Platform.runLater(() -> onPostExecute(result));
             }
         }.start();
     }

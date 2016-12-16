@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
  * Created by stirante
  */
 public class CodeView extends Tab {
+    private static final Pattern IS_COMMENTED = Pattern.compile("^\\s*;.+$");
+    private static final Pattern TO_COMMENT = Pattern.compile("^(\\s*)(.+)$");
     private static final Pattern WORD = Pattern.compile("[\\w.]+");
     private static final Pattern MNEMONIC = Pattern.compile("^\\s*(\\w+)$");
     private static final String[] MNEMONIC_ARRAY = new String[]{"ACALL", "ADD", "ADDC", "AJMP", "ANL", "CJNE", "CLR", "CPL", "DA", "DEC", "DIV", "DJNZ", "INC", "JB", "JBC", "JC", "JMP", "JNB"
@@ -149,8 +151,68 @@ public class CodeView extends Tab {
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
+            } else if (event.isControlDown() && event.getCode() == KeyCode.SLASH) {
+                ArrayList<Integer> lines = new ArrayList<>();
+                boolean wasSelected = false;
+                int start = 0;
+                int end = 0;
+                if (codeArea.selectedTextProperty().getValue().isEmpty()) {
+                    lines.add(codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward).getMajor());
+                    start = codeArea.getCaretPosition();
+                } else {
+                    wasSelected = true;
+                    start = codeArea.selectionProperty().getValue().getStart();
+                    end = codeArea.selectionProperty().getValue().getEnd();
+                    int startLine = codeArea.offsetToPosition(start, TwoDimensional.Bias.Forward).getMajor();
+                    int endLine = codeArea.offsetToPosition(end, TwoDimensional.Bias.Forward).getMajor();
+                    for (int i = startLine; i <= endLine; i++) {
+                        lines.add(i);
+                    }
+                }
+                SyntaxHighlighter.setPause(true);
+                final int[] diff = {0};
+                final int[] first = {0};
+                lines.forEach(integer -> {
+                    int i = commentLine(integer);
+                    diff[0] += i;
+                    if (first[0] == 0) first[0] = i;
+                });
+                SyntaxHighlighter.setPause(false);
+                SyntaxHighlighter.computeHighlighting(codeArea);
+                event.consume();
+                if (wasSelected) {
+                    end += diff[0];
+                    codeArea.selectRange(start + first[0], end);
+                } else {
+                    start += diff[0];
+                    codeArea.moveTo(start);
+                }
             }
         });
+    }
+
+    private int commentLine(int l) {
+        int start = codeArea.position(l, 0).toOffset();
+        int end;
+        int diff = 0;
+        try {
+            end = codeArea.position(l + 1, 0).toOffset() - 1;
+        } catch (Exception e) {
+            end = codeArea.getLength();
+        }
+        String line = codeArea.getText().substring(start, end);
+        if (IS_COMMENTED.matcher(line).matches()) {
+            line = line.replaceFirst(";", "");
+            diff = -1;
+        } else {
+            Matcher matcher = TO_COMMENT.matcher(line);
+            if (matcher.find()) {
+                line = matcher.group(1) + ";" + matcher.group(2);
+                diff = 1;
+            }
+        }
+        codeArea.replaceText(start, end, line);
+        return diff;
     }
 
     private void loadFile() {

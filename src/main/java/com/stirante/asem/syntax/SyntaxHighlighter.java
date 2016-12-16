@@ -7,6 +7,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,12 +34,15 @@ public class SyntaxHighlighter {
                     + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
                     + "|(?<DOLLAR>" + DOLLAR_PATTERN + ")"
     );
+    private static AsyncTask<Void, Void, StyleSpans<Collection<String>>> task;
+    private static AtomicBoolean pause = new AtomicBoolean(false);
 
 
     public static void computeHighlighting(final CodeArea text) {
         final String str = text.getText();
-
-        new AsyncTask<Void, Void, StyleSpans<Collection<String>>>() {
+        if (pause.get()) return;
+        if (task != null) task.cancel();
+        task = new AsyncTask<Void, Void, StyleSpans<Collection<String>>>() {
             @Override
             public StyleSpans<Collection<String>> doInBackground(Void[] params) {
                 Matcher matcher = PATTERN.matcher(str.toUpperCase());
@@ -46,6 +50,7 @@ public class SyntaxHighlighter {
                 StyleSpansBuilder<Collection<String>> spansBuilder
                         = new StyleSpansBuilder<>();
                 while (matcher.find()) {
+                    if (isCancelled()) return null;
                     String styleClass =
                             matcher.group("INSTRUCTION") != null ? "instruction" :
                                     matcher.group("DIRECTIVE") != null ? "directive" :
@@ -65,8 +70,18 @@ public class SyntaxHighlighter {
 
             @Override
             public void onPostExecute(StyleSpans<Collection<String>> result) {
-                text.setStyleSpans(0, result);
+                try {
+                    text.setStyleSpans(0, result);
+                } catch (Exception e) {
+                    //Usually means that text is changing too fast. Not really a bug so shhh
+                }
             }
-        }.execute();
+        };
+        task.execute();
     }
+
+    public static void setPause(boolean value) {
+        pause.set(value);
+    }
+
 }
