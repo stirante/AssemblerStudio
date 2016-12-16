@@ -154,7 +154,11 @@ public class Main extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open file");
         String path = Settings.getInstance().getLastPath();
-        if (path != null && !path.isEmpty()) fileChooser.setInitialDirectory(new File(path));
+        if (path != null && !path.isEmpty()) {
+            File value = new File(path);
+            if (value.exists())
+                fileChooser.setInitialDirectory(value);
+        }
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("ASM file", "*.asm"),
                 new FileChooser.ExtensionFilter("All files", "*.*")
