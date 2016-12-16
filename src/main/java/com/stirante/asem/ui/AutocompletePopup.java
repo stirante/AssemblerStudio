@@ -16,10 +16,8 @@ public class AutocompletePopup extends Popup {
 
     private final ListView<String> list;
     ObservableListWrapper<String> items = new ObservableListWrapper<>(new ArrayList<>());
-    private CodeView view;
 
     public AutocompletePopup(CodeView view) {
-        this.view = view;
         list = new ListView<>();
         list.setStyle(
                 "-fx-background-color: #2e2e2e;" +

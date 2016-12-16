@@ -1,3 +1,4 @@
+/*noinspection CssUnusedSymbol*/
 .root {
     /* Hide outline */
     -fx-focus-color: transparent;
@@ -9,16 +10,19 @@
     /*-fx-text-base-color: #c7c7c7;*/
 }
 
+/*noinspection CssUnusedSymbol*/
 .button {
     -fx-background: #4b4e50;
     -fx-background-color: #4b4e50;
 }
 
+/*noinspection CssUnusedSymbol*/
 .button:hover {
     -fx-background: #54585a;
     -fx-background-color: #54585a;
 }
 
+/*noinspection CssUnusedSymbol*/
 .button:pressed {
     -fx-background: #3c3f41;
     -fx-background-color: #3c3f41;
@@ -28,25 +32,32 @@
     /* Default text color */
     -fx-fill: #c7c7c7;
 }
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
 .paragraph-box:has-caret {
     /* Background of the current line */
     -fx-background-color: #323232;
 }
+
+/*noinspection CssUnusedSymbol*/
 .paragraph-box {
     /* Editor background  */
     -fx-background-color: #2B2B2B;
 }
 
+/*noinspection CssUnusedSymbol*/
 .styled-text-area .caret {
     /* Caret color (that blinking thingy when you type text) */
     -fx-stroke: #c7c7c7;
 }
 
+/*noinspection CssUnusedSymbol*/
 .lineno {
     /* Line number background */
     -fx-background-color: #323232;
 }
 
+/*noinspection CssUnusedSymbol*/
 .styled-text-area {
     /* Editor background */
     -fx-background-color: #2B2B2B;
@@ -56,29 +67,35 @@
 
 /* Syntax colors */
 
+/*noinspection CssUnusedSymbol*/
 .comment {
     -fx-fill: #74a567;
 }
 
+/*noinspection CssUnusedSymbol*/
 .instruction {
     -fx-fill: #d78b40;
 }
 
+/*noinspection CssUnusedSymbol*/
 .alias {
     -fx-fill: #9cc9d1;
     -fx-font-weight: bold;
 }
 
+/*noinspection CssUnusedSymbol*/
 .dollar-thingy {
     -fx-fill: #cbd14a;
     -fx-font-weight: bold;
 }
 
+/*noinspection CssUnusedSymbol*/
 .directive {
     -fx-fill: #0091ff;
     -fx-font-weight: bold;
 }
 
+/*noinspection CssUnusedSymbol*/
 .number {
     -fx-fill: #d53ec5;
 }

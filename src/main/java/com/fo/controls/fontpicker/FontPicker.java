@@ -32,6 +32,8 @@ import javafx.scene.control.Skin;
 import javafx.scene.text.Font;
 
 public class FontPicker extends ComboBoxBase<Font> {
+    private static final String DEFAULT_STYLE_CLASS = "font-picker";
+
     public FontPicker() {
         this(null);
     }
@@ -51,6 +53,4 @@ public class FontPicker extends ComboBoxBase<Font> {
     public String getUserAgentStylesheet() {
         return getClass().getResource("/font-picker.css").toExternalForm();
     }
-
-    private static final String DEFAULT_STYLE_CLASS = "font-picker";
 }

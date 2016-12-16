@@ -1,14 +1,18 @@
+/*noinspection CssUnusedSymbol,CssUnusedSymbol*/
 .combo-box-base.font-picker {
 }
 
+/*noinspection CssUnusedSymbol*/
 .combo-box-base.font-picker > .arrow-button {
 }
 
+/*noinspection CssUnusedSymbol*/
 .combo-box-base.font-picker > .font-label {
     -fx-padding: 4 4 4 8;
     -fx-font-size: 12;
 }
 
+/*noinspection CssUnusedSymbol*/
 .font-picker-popup {
     -fx-background-color: derive(-fx-color, -30%), -fx-background;
     -fx-background-insets: 0, 1;
@@ -19,6 +23,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 12, 0.0, 0, 8);
 }
 
+/*noinspection CssUnusedSymbol*/
 .font-picker-popup > .preview-label {
     /*-fx-border-color : derive(-fx-color,-30%);*/
     -fx-alignment: center;

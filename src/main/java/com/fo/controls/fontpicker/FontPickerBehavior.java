@@ -39,10 +39,6 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 public class FontPickerBehavior extends ComboBoxBaseBehavior<Font> {
 
-    public FontPickerBehavior(final FontPicker fontPicker) {
-        super(fontPicker, FONT_PICKER_BINDINGS);
-    }
-
     protected static final String OPEN_ACTION = "Open";
     protected static final String CLOSE_ACTION = "Close";
     protected static final List<KeyBinding> FONT_PICKER_BINDINGS = new ArrayList<>();
@@ -51,6 +47,10 @@ public class FontPickerBehavior extends ComboBoxBaseBehavior<Font> {
         FONT_PICKER_BINDINGS.add(new KeyBinding(ESCAPE, KEY_PRESSED, CLOSE_ACTION));
         FONT_PICKER_BINDINGS.add(new KeyBinding(SPACE, KEY_PRESSED, OPEN_ACTION));
         FONT_PICKER_BINDINGS.add(new KeyBinding(ENTER, KEY_PRESSED, OPEN_ACTION));
+    }
+
+    public FontPickerBehavior(final FontPicker fontPicker) {
+        super(fontPicker, FONT_PICKER_BINDINGS);
     }
 
     @Override

@@ -16,6 +16,7 @@ import java.util.HashMap;
 /**
  * Created by stirante
  */
+@SuppressWarnings("unchecked")
 public class Settings {
 
     private static Settings instance;
@@ -93,8 +94,7 @@ public class Settings {
     }
 
     public boolean isCheckingUpdate() {
-        if (!map.containsKey("update_check")) return true;
-        return (boolean) map.get("update_check");
+        return !map.containsKey("update_check") || (boolean) map.get("update_check");
     }
 
     public void setCheckingUpdate(boolean value) {

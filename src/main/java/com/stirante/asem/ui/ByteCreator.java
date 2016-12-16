@@ -15,7 +15,6 @@ import java.util.Optional;
  */
 public class ByteCreator {
 
-    private ArrayList<String> descriptions;
     @FXML
     public TextArea description;
     @FXML
@@ -34,7 +33,7 @@ public class ByteCreator {
     public TextField bit1;
     @FXML
     public TextField bit0;
-
+    private ArrayList<String> descriptions;
     private TextField[] bits;
     private VBox node;
 

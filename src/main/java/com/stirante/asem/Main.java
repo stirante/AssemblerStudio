@@ -26,6 +26,7 @@ public class Main extends Application {
 
     public static final double VERSION = 1.4;
     private static Stage stage;
+
     //Elements from layout
     @FXML
     public TabPane tabs;
@@ -49,6 +50,7 @@ public class Main extends Application {
     public MenuItem segmentCreatorItem;
     @FXML
     public MenuItem lcdCreatorItem;
+
     public CompileOutputView compileResult;
     private ByteCreator byteCreator;
     private FindDialog findDialog;

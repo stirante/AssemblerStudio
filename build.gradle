@@ -13,6 +13,7 @@ task createJar(type: Jar) {
     }
     baseName = project.name + ''
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    //noinspection GroovyAssignabilityCheck
     with jar
 }
 task buildApp(dependsOn: [clean, createJar])
