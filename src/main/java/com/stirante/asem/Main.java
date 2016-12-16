@@ -50,6 +50,7 @@ public class Main extends Application {
     public CompileOutputView compileResult;
     private ByteCreator byteCreator;
     private FindDialog findDialog;
+    private ReplaceDialog replaceDialog;
 
     public static Stage getStage() {
         return stage;
@@ -82,12 +83,13 @@ public class Main extends Application {
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         undoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
-        redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+        redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_ANY));
         closeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         primaryStage.show();
         stage = primaryStage;
         findDialog = new FindDialog(this);
+        replaceDialog = new ReplaceDialog(this);
         //Initialize ByteCreator
         byteCreator = new ByteCreator();
         //handle result
@@ -118,6 +120,11 @@ public class Main extends Application {
                 if (tabs.getSelectionModel().getSelectedItem() != null) {
                     String selectedText = ((CodeView) tabs.getSelectionModel().getSelectedItem()).getSelectedText();
                     findDialog.show(selectedText.isEmpty() ? null : selectedText);
+                }
+            } else if (event.isControlDown() && event.getCode() == KeyCode.R) {
+                if (tabs.getSelectionModel().getSelectedItem() != null) {
+                    String selectedText = ((CodeView) tabs.getSelectionModel().getSelectedItem()).getSelectedText();
+                    replaceDialog.show(selectedText.isEmpty() ? null : selectedText);
                 }
             }
         });

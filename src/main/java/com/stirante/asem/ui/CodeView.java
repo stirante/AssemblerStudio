@@ -530,4 +530,12 @@ public class CodeView extends Tab {
     public String getSelectedText() {
         return codeArea.getSelectedText();
     }
+
+    public String replace(String text, String replacement) {
+        if (getSelectedText().isEmpty() || !getSelectedText().equals(text)) return "Not found!";
+        codeArea.replaceText(codeArea.selectionProperty().getValue().getStart(), codeArea.selectionProperty().getValue().getEnd(), replacement);
+        find(text);
+        return "";
+    }
+
 }
