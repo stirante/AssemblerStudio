@@ -40,7 +40,7 @@ public class SegmentCreator {
             segment.set = false;
         }
         Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Segment creator");
+        dialog.setTitle("Pixel creator");
         dialog.setHeaderText(null);
         dialog.getDialogPane().getStylesheets().add(SegmentCreator.class.getResource("/style.css").toExternalForm());
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);

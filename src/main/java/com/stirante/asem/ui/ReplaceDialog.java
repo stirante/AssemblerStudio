@@ -59,6 +59,7 @@ public class ReplaceDialog {
         dialog.getDialogPane().setContent(node);
 
         dialog.show();
+        if (initialText != null) return;
         if (app.tabs.getSelectionModel().getSelectedItem() == null) return;
         if (findField.getText().isEmpty()) return;
         status.setText(((CodeView) app.tabs.getSelectionModel().getSelectedItem()).find(findField.getText()));

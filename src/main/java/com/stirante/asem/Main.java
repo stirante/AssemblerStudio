@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class Main extends Application {
 
-    public static final double VERSION = 1.3;
+    public static final double VERSION = 1.4;
     private static Stage stage;
     //Elements from layout
     @FXML
@@ -47,6 +47,8 @@ public class Main extends Application {
     public MenuItem redoMenuItem;
     @FXML
     public MenuItem segmentCreatorItem;
+    @FXML
+    public MenuItem lcdCreatorItem;
     public CompileOutputView compileResult;
     private ByteCreator byteCreator;
     private FindDialog findDialog;
@@ -78,12 +80,13 @@ public class Main extends Application {
             saveMenuItem.setDisable(newValue == null);
             byteMenu.setDisable(newValue == null);
             segmentCreatorItem.setDisable(newValue == null);
+            lcdCreatorItem.setDisable(newValue == null);
             compileResult.setText("");
         });
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         undoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
-        redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_ANY));
+        redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         closeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         primaryStage.show();
@@ -339,5 +342,13 @@ public class Main extends Application {
 
     public void onKeyboardHelpClicked() {
         HelpDialog.show();
+    }
+
+    public void lcdCreator() {
+        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            String bits = LcdCreator.create();
+            selectedItem.insert(bits);
+        }
     }
 }

@@ -13,7 +13,9 @@ public class HelpDialog {
             "[CTRL + LEFT MOUSE BUTTON]\tWhen clicked on recognized part of code, moves file to definition\n" +
             "[F9]\t\t\t\tCompile\n" +
             "[F10]\t\t\t\tRun\n" +
-            "[CTRL + SPACE]\t\t\tSmart suggestions";
+            "[CTRL + SPACE]\t\t\tSmart suggestions\n" +
+            "[CTRL + F]\t\t\tFind\n" +
+            "{CTRL + R]\t\t\tReplace";
 
     public static void show() {
         Dialog<String> dialog = new Dialog<>();
@@ -22,7 +24,7 @@ public class HelpDialog {
         dialog.getDialogPane().getStylesheets().add(SegmentCreator.class.getResource("/style.css").toExternalForm());
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         Label l = new Label(CONTENT);
-        l.setStyle("-fx-font-family: Consolas");//This fonr at least makes tabs align
+        l.setStyle("-fx-font-family: Consolas");//This font at least makes tabs align
         dialog.getDialogPane().setContent(l);
         dialog.showAndWait();
     }

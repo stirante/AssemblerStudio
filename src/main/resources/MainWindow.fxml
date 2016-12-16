@@ -23,6 +23,8 @@
             </Menu>
             <MenuItem fx:id="segmentCreatorItem" disable="true" mnemonicParsing="false" onAction="#segmentCreator"
                       text="Segment creator"/>
+            <MenuItem fx:id="lcdCreatorItem" disable="true" mnemonicParsing="false" onAction="#lcdCreator"
+                      text="LCD creator"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
             <MenuItem mnemonicParsing="false" onAction="#onAboutClicked" text="About"/>
@@ -34,7 +36,7 @@
         <Button mnemonicParsing="false" onAction="#onCompileClicked" text="Compile"/>
         <Button mnemonicParsing="false" onAction="#onRunClicked" text="Run"/>
     </ToolBar>
-    <SplitPane dividerPositions="0.7" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0"
+    <SplitPane dividerPositions="0.75" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0"
                VBox.vgrow="ALWAYS">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
             <TabPane fx:id="tabs" layoutX="30.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0"
