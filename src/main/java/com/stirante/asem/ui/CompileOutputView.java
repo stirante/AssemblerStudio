@@ -22,6 +22,7 @@ public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLin
     public CompileOutputView(Main main) {
         super(ErrorLine.NO_ERROR, (text, style) -> style.applyToText(text), ErrorLine.NO_ERROR, (text, style) -> style.applyToText(text));
         app = main;
+        setEditable(false);
     }
 
     public void setText(String text) {

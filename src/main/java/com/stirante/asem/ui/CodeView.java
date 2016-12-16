@@ -234,6 +234,8 @@ public class CodeView extends Tab {
                     original = result;
                     codeArea.replaceText(0, 0, result);
                     codeArea.moveTo(0);
+                    codeArea.getUndoManager().forgetHistory();
+                    codeArea.getUndoManager().mark();
                 }
             }.execute();
         } else changed = true;
@@ -506,5 +508,26 @@ public class CodeView extends Tab {
 
     void goToLine(int line) {
         codeArea.moveTo(codeArea.position(line - 1, 0).toOffset());
+    }
+
+    public String find(String text) {
+        int start = codeArea.selectedTextProperty().getValue().isEmpty() ? codeArea.getCaretPosition() : codeArea.selectionProperty().getValue().getEnd();
+        int i = codeArea.getText().indexOf(text, start);
+        if (i == -1) {
+            i = codeArea.getText().indexOf(text);
+            if (i == -1)
+                return "Not found!";
+            else {
+                codeArea.selectRange(i, text.length() + i);
+                return "";
+            }
+        } else {
+            codeArea.selectRange(i, text.length() + i);
+            return "";
+        }
+    }
+
+    public String getSelectedText() {
+        return codeArea.getSelectedText();
     }
 }

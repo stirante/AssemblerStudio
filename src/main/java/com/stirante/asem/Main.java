@@ -49,6 +49,7 @@ public class Main extends Application {
     public MenuItem segmentCreatorItem;
     public CompileOutputView compileResult;
     private ByteCreator byteCreator;
+    private FindDialog findDialog;
 
     public static Stage getStage() {
         return stage;
@@ -86,6 +87,7 @@ public class Main extends Application {
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         primaryStage.show();
         stage = primaryStage;
+        findDialog = new FindDialog(this);
         //Initialize ByteCreator
         byteCreator = new ByteCreator();
         //handle result
@@ -112,6 +114,12 @@ public class Main extends Application {
         root.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.F9) onCompileClicked();
             else if (event.getCode() == KeyCode.F10) onRunClicked();
+            else if (event.isControlDown() && event.getCode() == KeyCode.F) {
+                if (tabs.getSelectionModel().getSelectedItem() != null) {
+                    String selectedText = ((CodeView) tabs.getSelectionModel().getSelectedItem()).getSelectedText();
+                    findDialog.show(selectedText.isEmpty() ? null : selectedText);
+                }
+            }
         });
         //load file from startup parameters
         List<String> args = getParameters().getUnnamed();
