@@ -42,27 +42,20 @@ public class ReplaceDialog {
         dialog.setHeaderText(null);
         dialog.getDialogPane().getStylesheets().add(SegmentCreator.class.getResource("/style.css").toExternalForm());
         ButtonType replaceButton = new ButtonType("Replace", ButtonBar.ButtonData.OTHER);
-//        ButtonType replaceAllButton = new ButtonType("Replace All", ButtonBar.ButtonData.OTHER);
         dialog.getDialogPane().getButtonTypes().addAll(replaceButton, ButtonType.CANCEL);
         dialog.getDialogPane().lookupButton(replaceButton).addEventFilter(ActionEvent.ACTION, event -> {
             event.consume();
-            if (app.tabs.getSelectionModel().getSelectedItem() == null) return;
+            if (app.hasOpenTab()) return;
             if (findField.getText().isEmpty() || replaceField.getText().isEmpty()) return;
-            status.setText(((CodeView) app.tabs.getSelectionModel().getSelectedItem()).replace(findField.getText(), replaceField.getText()));
+            status.setText(app.getOpenTab().replace(findField.getText(), replaceField.getText()));
         });
-//        dialog.getDialogPane().lookupButton(replaceAllButton).addEventFilter(ActionEvent.ACTION, event -> {
-//            event.consume();
-//            if (app.tabs.getSelectionModel().getSelectedItem() == null) return;
-//            if (findField.getText().isEmpty() || replaceField.getText().isEmpty()) return;
-//            status.setText(((CodeView) app.tabs.getSelectionModel().getSelectedItem()).replaceAll(findField.getText(), replaceField.getText()));
-//        });
         dialog.getDialogPane().setContent(node);
 
         dialog.show();
         if (initialText != null) return;
-        if (app.tabs.getSelectionModel().getSelectedItem() == null) return;
+        if (app.hasOpenTab()) return;
         if (findField.getText().isEmpty()) return;
-        status.setText(((CodeView) app.tabs.getSelectionModel().getSelectedItem()).find(findField.getText()));
+        status.setText(app.getOpenTab().find(findField.getText()));
     }
 
 }

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0"
-      prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40"
+      xmlns:fx="http://javafx.com/fxml/1">
     <MenuBar>
         <Menu mnemonicParsing="false" text="File">
             <MenuItem fx:id="newMenuItem" mnemonicParsing="false" onAction="#onNewClicked" text="New"/>
@@ -33,20 +35,54 @@
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
-        <Button mnemonicParsing="false" onAction="#onCompileClicked" text="Compile"/>
-        <Button mnemonicParsing="false" onAction="#onRunClicked" text="Run"/>
+        <Button mnemonicParsing="false" onAction="#onNewClicked">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                    <Image url="new.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#onOpenClicked">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                    <Image url="open.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Separator orientation="VERTICAL"/>
+        <Button mnemonicParsing="false" onAction="#onSettingsClicked">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                    <Image url="settings.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Separator orientation="VERTICAL"/>
+        <Button mnemonicParsing="false" onAction="#onCompileClicked">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                    <Image url="build.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#onRunClicked">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                    <Image url="run.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
     </ToolBar>
-    <SplitPane dividerPositions="0.75" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0"
-               VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.75" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
             <TabPane fx:id="tabs" layoutX="30.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0"
                      tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-            <BorderPane fx:id="result" layoutX="199.0" layoutY="-45.0" prefHeight="200.0"
-                        prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+            <BorderPane fx:id="result" layoutX="199.0" layoutY="-45.0" prefHeight="200.0" prefWidth="200.0"
+                        AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                        AnchorPane.topAnchor="0.0"/>
         </AnchorPane>
     </SplitPane>
 </VBox>

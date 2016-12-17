@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51_main.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51_main.iml" group="AssemblerEditor51" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerEditor51_test.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerEditor51_test.iml" group="AssemblerEditor51" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerStudio.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerStudio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerStudio_main.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerStudio_main.iml" group="AssemblerStudio" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AssemblerStudio_test.iml" filepath="$PROJECT_DIR$/.idea/modules/AssemblerStudio_test.iml" group="AssemblerStudio" />
     </modules>
   </component>
 </project>

@@ -77,7 +77,7 @@ public class Main extends Application {
         primaryStage.setTitle("Assembler Studio");
         //catch close request and check for unsaved files
         primaryStage.setOnCloseRequest(event -> tabs.getTabs().forEach(tab -> ((CodeView) tab).onClose()));
-        //disable save menu item if there is no active tab
+        //disable menu items if there is no active tab
         tabs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             saveMenuItem.setDisable(newValue == null);
             byteMenu.setDisable(newValue == null);
@@ -85,17 +85,33 @@ public class Main extends Application {
             lcdCreatorItem.setDisable(newValue == null);
             compileResult.setText("");
         });
+        //add keyboard shortcuts
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         undoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
         redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         closeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        root.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.F9) onCompileClicked();
+            else if (event.getCode() == KeyCode.F10) onRunClicked();
+            else if (event.isControlDown() && event.getCode() == KeyCode.F) {
+                if (hasOpenTab()) {
+                    String selectedText = getOpenTab().getSelectedText();
+                    findDialog.show(selectedText.isEmpty() ? null : selectedText);
+                }
+            } else if (event.isControlDown() && event.getCode() == KeyCode.R) {
+                if (hasOpenTab()) {
+                    String selectedText = getOpenTab().getSelectedText();
+                    replaceDialog.show(selectedText.isEmpty() ? null : selectedText);
+                }
+            }
+        });
         primaryStage.show();
         stage = primaryStage;
+        //Initialize dialogs
         findDialog = new FindDialog(this);
         replaceDialog = new ReplaceDialog(this);
-        //Initialize ByteCreator
         byteCreator = new ByteCreator();
         //handle result
         compileResult = new CompileOutputView(this);
@@ -118,25 +134,16 @@ public class Main extends Application {
             event.setDropCompleted(success);
             event.consume();
         });
-        root.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.F9) onCompileClicked();
-            else if (event.getCode() == KeyCode.F10) onRunClicked();
-            else if (event.isControlDown() && event.getCode() == KeyCode.F) {
-                if (tabs.getSelectionModel().getSelectedItem() != null) {
-                    String selectedText = ((CodeView) tabs.getSelectionModel().getSelectedItem()).getSelectedText();
-                    findDialog.show(selectedText.isEmpty() ? null : selectedText);
-                }
-            } else if (event.isControlDown() && event.getCode() == KeyCode.R) {
-                if (tabs.getSelectionModel().getSelectedItem() != null) {
-                    String selectedText = ((CodeView) tabs.getSelectionModel().getSelectedItem()).getSelectedText();
-                    replaceDialog.show(selectedText.isEmpty() ? null : selectedText);
-                }
-            }
-        });
         //load file from startup parameters
         List<String> args = getParameters().getUnnamed();
         if (!args.isEmpty()) openFile(new File(args.get(0)));
-        UpdateUtil.check(this);
+        //check updates
+        try {
+            UpdateUtil.check(this);
+        } catch (Exception e) {
+            //don't want updates to ruin whole app
+            e.printStackTrace();
+        }
     }
 
     //actually open tab for file, not file itself
@@ -188,17 +195,16 @@ public class Main extends Application {
     }
 
     public void onCompileClicked() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            if (!selectedItem.save()) {
+        if (hasOpenTab()) {
+            if (!getOpenTab().save()) {
                 compileResult.setText("You need to save file first!");
                 return;
             }
-
+            //compile async
             new AsyncTask<Void, Void, String>() {
                 @Override
                 public String doInBackground(Void[] params) {
-                    return selectedItem.compile();
+                    return getOpenTab().compile();
                 }
 
                 @Override
@@ -210,29 +216,33 @@ public class Main extends Application {
     }
 
     public void onSaveClicked() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            selectedItem.save();
+        if (hasOpenTab()) {
+            getOpenTab().save();
         }
     }
 
     public void undo() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            selectedItem.undo();
+        if (hasOpenTab()) {
+            getOpenTab().undo();
         }
     }
 
     public void redo() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            selectedItem.redo();
+        if (hasOpenTab()) {
+            getOpenTab().redo();
         }
     }
 
+    public boolean hasOpenTab() {
+        return tabs.getSelectionModel().getSelectedItem() != null;
+    }
+
+    public CodeView getOpenTab() {
+        return (CodeView) tabs.getSelectionModel().getSelectedItem();
+    }
+
     public void byteCreatorTmod() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
+        if (hasOpenTab()) {
             ArrayList<String> descs = new ArrayList<>();
             descs.add(0, "Timer 0\n" +
                     "\n" +
@@ -267,13 +277,12 @@ public class Main extends Application {
                     "GATE\n" +
                     "The hardware way of starting and stopping the timer by an external source is achieved by making GATE=1 in the TMOD register. And if we change to GATE=0 then we do no need external hardware to start and stop the timers.");
             String bits = byteCreator.create("TMOD", descs);
-            selectedItem.insert(bits);
+            getOpenTab().insert(bits);
         }
     }
 
     public void byteCreatorTcon() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
+        if (hasOpenTab()) {
             ArrayList<String> descs = new ArrayList<>();
             descs.add(0, "IT0\n" +
                     "External interrupt 0 signal type control bit. Same as IT0.");
@@ -292,13 +301,12 @@ public class Main extends Application {
             descs.add(7, "TF1\n" +
                     "Timer1 over flow flag. Set when timer rolls from all 1s to 0. Cleared when the processor vectors to execute interrupt service routine. Located at program address 001Bh.");
             String bits = byteCreator.create("TCON", descs);
-            selectedItem.insert(bits);
+            getOpenTab().insert(bits);
         }
     }
 
     public void byteCreatorIe() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
+        if (hasOpenTab()) {
             ArrayList<String> descs = new ArrayList<>();
             descs.add(0, "EX0\n" +
                     "Enable External 0 Interrupt");
@@ -315,7 +323,7 @@ public class Main extends Application {
             descs.add(7, "EA\n" +
                     "Global Interrupt Enable/Disable");
             String bits = byteCreator.create("IE", descs);
-            selectedItem.insert(bits);
+            getOpenTab().insert(bits);
         }
     }
 
@@ -324,21 +332,19 @@ public class Main extends Application {
     }
 
     public void onRunClicked() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            if (!selectedItem.save()) {
+        if (hasOpenTab()) {
+            if (!getOpenTab().save()) {
                 compileResult.setText("You need to save and compile file first!");
                 return;
             }
-            compileResult.setText(selectedItem.run());
+            compileResult.setText(getOpenTab().run());
         }
     }
 
     public void segmentCreator() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
+        if (hasOpenTab()) {
             String bits = SegmentCreator.create();
-            selectedItem.insert(bits);
+            getOpenTab().insert(bits);
         }
     }
 
@@ -351,10 +357,9 @@ public class Main extends Application {
     }
 
     public void lcdCreator() {
-        final CodeView selectedItem = (CodeView) tabs.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
+        if (hasOpenTab()) {
             String bits = LcdCreator.create();
-            selectedItem.insert(bits);
+            getOpenTab().insert(bits);
         }
     }
 }

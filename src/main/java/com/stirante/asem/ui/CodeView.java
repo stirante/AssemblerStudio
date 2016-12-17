@@ -373,6 +373,7 @@ public class CodeView extends Tab {
 
     public boolean save() {
         if (file == null) {
+            //it's a new file
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save file");
             String path = Settings.getInstance().getLastPath();
@@ -386,6 +387,7 @@ public class CodeView extends Tab {
                 Settings.getInstance().setLastPath(file.getParentFile().getAbsolutePath());
                 this.file = file;
             } else {
+                //user don't want to save so return no success
                 return false;
             }
         }

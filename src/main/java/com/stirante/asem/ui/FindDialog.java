@@ -52,8 +52,8 @@ public class FindDialog {
     }
 
     public void onAction() {
-        if (app.tabs.getSelectionModel().getSelectedItem() == null) return;
+        if (app.hasOpenTab()) return;
         if (findField.getText().isEmpty()) return;
-        status.setText(((CodeView) app.tabs.getSelectionModel().getSelectedItem()).find(findField.getText()));
+        status.setText(app.getOpenTab().find(findField.getText()));
     }
 }
