@@ -1,5 +1,6 @@
 package com.stirante.asem;
 
+import com.stirante.asem.syntax.Constants;
 import com.stirante.asem.ui.*;
 import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.UpdateUtil;
@@ -24,7 +25,6 @@ import java.util.List;
  */
 public class Main extends Application {
 
-    public static final double VERSION = 1.4;
     private static Stage stage;
 
     //Elements from layout
@@ -185,7 +185,7 @@ public class Main extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         alert.setTitle("About");
-        alert.setHeaderText("Assembler Studio v." + VERSION);
+        alert.setHeaderText("Assembler Studio v." + Constants.VERSION);
         alert.setContentText("Author: Piotr \"stirante\" Brzozowski");
         alert.showAndWait();
     }

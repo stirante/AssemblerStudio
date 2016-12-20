@@ -47,12 +47,13 @@ public class FindDialog {
 
         });
         dialog.getDialogPane().setContent(node);
+        findField.requestFocus();
 
         dialog.show();
     }
 
     public void onAction() {
-        if (app.hasOpenTab()) return;
+        if (!app.hasOpenTab()) return;
         if (findField.getText().isEmpty()) return;
         status.setText(app.getOpenTab().find(findField.getText()));
     }

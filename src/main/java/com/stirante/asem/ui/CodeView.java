@@ -1,29 +1,28 @@
 package com.stirante.asem.ui;
 
 import com.stirante.asem.Main;
+import com.stirante.asem.syntax.Constants;
 import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
 import com.stirante.asem.utils.AsyncTask;
-import com.stirante.asem.utils.Tooltips;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Popup;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.*;
+import org.fxmisc.richtext.CharacterHit;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -31,21 +30,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by stirante
  */
 public class CodeView extends Tab {
-    private static final Pattern IS_COMMENTED = Pattern.compile("^\\s*;.+$");
-    private static final Pattern TO_COMMENT = Pattern.compile("^(\\s*)(.+)$");
-    private static final Pattern WORD = Pattern.compile("[\\w.]+");
-    private static final Pattern MNEMONIC = Pattern.compile("^\\s*(\\w+)$");
-    private static final String[] MNEMONIC_ARRAY = new String[]{"ACALL", "ADD", "ADDC", "AJMP", "ANL", "CJNE", "CLR", "CPL", "DA", "DEC", "DIV", "DJNZ", "INC", "JB", "JBC", "JC", "JMP", "JNB"
-            , "JNC", "JNZ", "JZ", "LCALL", "LJMP", "MOV", "MOVC", "MOVX", "MUL", "NOP", "ORL", "POP", "PUSH", "RET", "RETI", "RL", "RLC", "RR", "RRC", "SETB", "SJMP", "SUBB", "SWAP", "XCH", "XCHD", "XRL"
-    };
     private static int newCounter = 1;
+    private final TooltipPopup tooltipPopup;
     @FXML
     public StackPane content;
     private ContextMenu context;
@@ -56,10 +47,7 @@ public class CodeView extends Tab {
     private boolean changed = false;
     private String original = "";
     private SyntaxAnalyzer.AnalysisResult syntaxAnalysis;
-
-    private int autoIndex = 0;
-    private AutocompletePopup autocompletePopup;
-    private boolean autocomplete = false;
+    private AutocompletionPopup autocompletionPopup;
 
     public CodeView(Main app, File f) {
         this.app = app;
@@ -69,9 +57,11 @@ public class CodeView extends Tab {
 
         codeArea = new CodeArea();
 
-        initClicks();
-        initTooltips();
-        initAutocomplete();
+        autocompletionPopup = new AutocompletionPopup(this, codeArea);
+        tooltipPopup = new TooltipPopup(this, codeArea);
+
+        initMouse();
+        initKeyboard();
 
         codeArea.setStyle("-fx-font-family: " + Settings.getInstance().getFont().getFamily() + ";-fx-font-size: " + Settings.getInstance().getFont().getSize() + ";");
         Settings.getInstance().fontProperty().addListener((observable, oldValue, newValue) -> codeArea.setStyle("-fx-font-family: " + newValue.getFamily() + ";-fx-font-size: " + newValue.getSize() + ";"));
@@ -106,89 +96,53 @@ public class CodeView extends Tab {
         return SimpleDateFormat.getTimeInstance().format(new Date(System.currentTimeMillis()));
     }
 
-    private void initAutocomplete() {
-        Method m;
-        try {
-            m = StyledTextArea.class.getDeclaredMethod("getCaretBoundsOnScreen");
-            m.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return;
-        }
-        autocompletePopup = new AutocompletePopup(this);
-        Method finalM = m;
+    private void initKeyboard() {
         codeArea.setOnKeyPressed(event -> {
             if (event.isControlDown() && event.getCode() == KeyCode.SPACE) {
-                TwoDimensional.Position caret = codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward);
-                TwoDimensional.Position lineStart = codeArea.position(caret.getMajor(), 0);
-                String line = codeArea.getText().substring(lineStart.toOffset(), caret.toOffset());
-                boolean isMnemonic = MNEMONIC.matcher(line).matches();
-                String s = getWordAt(codeArea.getCaretPosition());
-                ArrayList<String> suggestions = new ArrayList<>();
-                if (isMnemonic) {
-                    boolean upperCase = Character.isUpperCase(s.charAt(0));
-                    String s1 = s.toUpperCase();
-                    for (String s2 : MNEMONIC_ARRAY) {
-                        if (s2.startsWith(s1)) {
-                            suggestions.add(upperCase ? s2 + "\t\t" : s2.toLowerCase() + "\t\t");
-                        }
-                    }
-                } else {
-                    suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
-                    suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
-                }
-                if (suggestions.isEmpty()) return;
-                try {
-                    Optional invoke = (Optional) finalM.invoke(codeArea);
-                    if (invoke.isPresent()) {
-                        Bounds b = (Bounds) invoke.get();
-                        autoIndex = s.length();
-                        autocompletePopup.setSuggestions(suggestions);
-                        autocomplete = true;
-                        autocompletePopup.show(codeArea, b.getMinX(), b.getMaxY());
-                        event.consume();
-                    }
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            } else if (event.isControlDown() && event.getCode() == KeyCode.SLASH) {
-                ArrayList<Integer> lines = new ArrayList<>();
-                boolean wasSelected = false;
-                int start = 0;
-                int end = 0;
-                if (codeArea.selectedTextProperty().getValue().isEmpty()) {
-                    lines.add(codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward).getMajor());
-                    start = codeArea.getCaretPosition();
-                } else {
-                    wasSelected = true;
-                    start = codeArea.selectionProperty().getValue().getStart();
-                    end = codeArea.selectionProperty().getValue().getEnd();
-                    int startLine = codeArea.offsetToPosition(start, TwoDimensional.Bias.Forward).getMajor();
-                    int endLine = codeArea.offsetToPosition(end, TwoDimensional.Bias.Forward).getMajor();
-                    for (int i = startLine; i <= endLine; i++) {
-                        lines.add(i);
-                    }
-                }
-                SyntaxHighlighter.setPause(true);
-                final int[] diff = {0};
-                final int[] first = {0};
-                lines.forEach(integer -> {
-                    int i = commentLine(integer);
-                    diff[0] += i;
-                    if (first[0] == 0) first[0] = i;
-                });
-                SyntaxHighlighter.setPause(false);
-                SyntaxHighlighter.computeHighlighting(codeArea);
+                autocompletionPopup.triggerAutocompletion();
                 event.consume();
-                if (wasSelected) {
-                    end += diff[0];
-                    codeArea.selectRange(start + first[0], end);
-                } else {
-                    start += diff[0];
-                    codeArea.moveTo(start);
-                }
+            } else if (event.isControlDown() && event.getCode() == KeyCode.SLASH) {
+                triggerComment();
+                event.consume();
             }
         });
+    }
+
+    private void triggerComment() {
+        ArrayList<Integer> lines = new ArrayList<>();
+        boolean wasSelected = false;
+        int start;
+        int end = 0;
+        if (codeArea.selectedTextProperty().getValue().isEmpty()) {
+            lines.add(codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward).getMajor());
+            start = codeArea.getCaretPosition();
+        } else {
+            wasSelected = true;
+            start = codeArea.selectionProperty().getValue().getStart();
+            end = codeArea.selectionProperty().getValue().getEnd();
+            int startLine = codeArea.offsetToPosition(start, TwoDimensional.Bias.Forward).getMajor();
+            int endLine = codeArea.offsetToPosition(end, TwoDimensional.Bias.Forward).getMajor();
+            for (int i = startLine; i <= endLine; i++) {
+                lines.add(i);
+            }
+        }
+        SyntaxHighlighter.setPause(true);
+        final int[] diff = {0};
+        final int[] first = {0};
+        lines.forEach(integer -> {
+            int i = commentLine(integer);
+            diff[0] += i;
+            if (first[0] == 0) first[0] = i;
+        });
+        SyntaxHighlighter.setPause(false);
+        SyntaxHighlighter.computeHighlighting(codeArea);
+        if (wasSelected) {
+            end += diff[0];
+            codeArea.selectRange(start + first[0], end);
+        } else {
+            start += diff[0];
+            codeArea.moveTo(start);
+        }
     }
 
     private int commentLine(int l) {
@@ -201,11 +155,11 @@ public class CodeView extends Tab {
             end = codeArea.getLength();
         }
         String line = codeArea.getText().substring(start, end);
-        if (IS_COMMENTED.matcher(line).matches()) {
+        if (Constants.IS_COMMENTED.matcher(line).matches()) {
             line = line.replaceFirst(";", "");
             diff = -1;
         } else {
-            Matcher matcher = TO_COMMENT.matcher(line);
+            Matcher matcher = Constants.TO_COMMENT.matcher(line);
             if (matcher.find()) {
                 line = matcher.group(1) + ";" + matcher.group(2);
                 diff = 1;
@@ -241,7 +195,7 @@ public class CodeView extends Tab {
         } else changed = true;
     }
 
-    private void initClicks() {
+    private void initMouse() {
         context = new ContextMenu();
         //copy item
         copyItem = new MenuItem("Copy");
@@ -259,35 +213,41 @@ public class CodeView extends Tab {
             copyItem.setDisable(selectedText == null || selectedText.isEmpty());
         });
 
-        //hide context menu on click
         codeArea.setOnMouseClicked(event -> {
             context.hide();
-            autocompletePopup.hide();
-            autocomplete = false;
+            autocompletionPopup.hide();
             if (event.isControlDown()) {
-                CharacterHit hit = codeArea.hit(event.getX(), event.getY());
-                int index = hit.getInsertionIndex();
-                String s = getWordAt(index);
-                for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
-                    if (field.name.equals(s)) {
-                        codeArea.moveTo(codeArea.position(field.line, 0).toOffset());
-                        return;
-                    }
-                }
-                for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
-                    if (routine.name.equals(s)) {
-                        codeArea.moveTo(codeArea.position(routine.line, 0).toOffset());
-                        return;
-                    }
-                }
+                triggerGoTo(event);
             }
         });
+
+        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, tooltipPopup::triggerTooltip);
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> tooltipPopup.hide());
     }
 
-    private String getWordAt(int index) {
+    private void triggerGoTo(MouseEvent event) {
+        CharacterHit hit = codeArea.hit(event.getX(), event.getY());
+        int index = hit.getInsertionIndex();
+        String s = getWordAt(index);
+        for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
+            if (field.name.equals(s)) {
+                codeArea.moveTo(codeArea.position(field.line, 0).toOffset());
+                return;
+            }
+        }
+        for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
+            if (routine.name.equals(s)) {
+                codeArea.moveTo(codeArea.position(routine.line, 0).toOffset());
+                return;
+            }
+        }
+    }
+
+    public String getWordAt(int index) {
         int start = index;
         int end = index;
-        Matcher matcher = WORD.matcher(codeArea.getText());
+        Matcher matcher = Constants.WORD.matcher(codeArea.getText());
         while (matcher.find()) {
             if (matcher.start() <= index && matcher.end() >= index) {
                 start = matcher.start();
@@ -295,49 +255,6 @@ public class CodeView extends Tab {
             }
         }
         return codeArea.getText().substring(start, end);
-    }
-
-    private void initTooltips() {
-        Popup popup = new Popup();
-        Label popupMsg = new Label();
-        popupMsg.setStyle(
-                "-fx-background-color: #2e2e2e;" +
-                        "-fx-text-fill: #8a8a8a;" +
-                        "-fx-border-color: white;" +
-                        "-fx-padding: 5;");
-        popupMsg.setWrapText(true);
-        popupMsg.setMaxWidth(400);
-        popup.getContent().add(popupMsg);
-        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
-        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
-            int chIdx = e.getCharacterIndex();
-            Point2D pos = e.getScreenPosition();
-            String s = getWordAt(chIdx);
-            String s1 = Tooltips.get(s);
-            if (!s1.isEmpty()) {
-                popupMsg.setText(s + ": " + s1);
-                popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
-            } else {
-                for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
-                    if (field.name.equals(s) || s.equals("#" + field.name)) {
-                        popupMsg.setText("Type: " + field.type +
-                                "\nValue: " + field.address +
-                                (field.comment.isEmpty() ? "" : "\n" + field.comment));
-                        popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
-                        return;
-                    }
-                }
-                for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
-                    if (routine.name.equals(s)) {
-                        popupMsg.setText("Name: " + routine.name +
-                                (routine.comment.isEmpty() ? "" : "\n" + routine.comment));
-                        popup.show(codeArea, pos.getX() + 15, pos.getY() + 15);
-                        return;
-                    }
-                }
-            }
-        });
-        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> popup.hide());
     }
 
     //checks changes between original code and the one inside editor and depending on the result changes tab title
@@ -353,16 +270,8 @@ public class CodeView extends Tab {
             }
             app.compileResult.setText(sb.toString());
         } else if (app.compileResult.getText().startsWith("Address")) app.compileResult.setText("");
-        if (autocomplete) {
-            String s = getWordAt(codeArea.getCaretPosition());
-            autoIndex = s.length();
-            ArrayList<String> suggestions = new ArrayList<>();
-            suggestions.addAll(syntaxAnalysis.fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
-            suggestions.addAll(syntaxAnalysis.routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
-            if (suggestions.isEmpty()) {
-                autocomplete = false;
-                autocompletePopup.hide();
-            } else autocompletePopup.setSuggestions(suggestions);
+        if (autocompletionPopup.isAutocompletion()) {
+            autocompletionPopup.onChanges();
         }
         if (file == null) return;
         boolean old = changed;
@@ -463,10 +372,7 @@ public class CodeView extends Tab {
             br.close();
             sb.append("\n[").append(getTime()).append("] Compiler terminated with code ").append(code);
             return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to run compiler!\n" + e.getMessage();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return "Failed to run compiler!\n" + e.getMessage();
         }
@@ -502,21 +408,15 @@ public class CodeView extends Tab {
         }
     }
 
-    void autocomplete(String item) {
-        item = item.substring(autoIndex);
-        insert(item);
-        autocomplete = false;
-    }
-
     void goToLine(int line) {
         codeArea.moveTo(codeArea.position(line - 1, 0).toOffset());
     }
 
     public String find(String text) {
         int start = codeArea.selectedTextProperty().getValue().isEmpty() ? codeArea.getCaretPosition() : codeArea.selectionProperty().getValue().getEnd();
-        int i = codeArea.getText().indexOf(text, start);
+        int i = codeArea.getText().toLowerCase().indexOf(text.toLowerCase(), start);
         if (i == -1) {
-            i = codeArea.getText().indexOf(text);
+            i = codeArea.getText().toLowerCase().indexOf(text.toLowerCase());
             if (i == -1)
                 return "Not found!";
             else {
@@ -534,10 +434,13 @@ public class CodeView extends Tab {
     }
 
     public String replace(String text, String replacement) {
-        if (getSelectedText().isEmpty() || !getSelectedText().equals(text)) return "Not found!";
+        if (getSelectedText().isEmpty() || !getSelectedText().equalsIgnoreCase(text)) return "Not found!";
         codeArea.replaceText(codeArea.selectionProperty().getValue().getStart(), codeArea.selectionProperty().getValue().getEnd(), replacement);
         find(text);
         return "";
     }
 
+    public SyntaxAnalyzer.AnalysisResult getSyntaxAnalysis() {
+        return syntaxAnalysis;
+    }
 }

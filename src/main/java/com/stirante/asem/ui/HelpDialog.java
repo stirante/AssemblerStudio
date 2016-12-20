@@ -15,7 +15,7 @@ public class HelpDialog {
             "[F10]\t\t\t\tRun\n" +
             "[CTRL + SPACE]\t\t\tSmart suggestions\n" +
             "[CTRL + F]\t\t\tFind\n" +
-            "{CTRL + R]\t\t\tReplace";
+            "[CTRL + R]\t\t\tReplace";
 
     public static void show() {
         Dialog<String> dialog = new Dialog<>();

@@ -1,6 +1,7 @@
 package com.stirante.asem.utils;
 
 import com.stirante.asem.Main;
+import com.stirante.asem.syntax.Constants;
 import com.stirante.asem.ui.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -50,7 +51,7 @@ public class UpdateUtil {
 
             @Override
             public void onPostExecute(Void r) {
-                if (Main.VERSION < remote[0]) {
+                if (Constants.VERSION < remote[0]) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("There is new version!");
                     alert.setHeaderText(null);

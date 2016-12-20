@@ -45,7 +45,7 @@ public class ReplaceDialog {
         dialog.getDialogPane().getButtonTypes().addAll(replaceButton, ButtonType.CANCEL);
         dialog.getDialogPane().lookupButton(replaceButton).addEventFilter(ActionEvent.ACTION, event -> {
             event.consume();
-            if (app.hasOpenTab()) return;
+            if (!app.hasOpenTab()) return;
             if (findField.getText().isEmpty() || replaceField.getText().isEmpty()) return;
             status.setText(app.getOpenTab().replace(findField.getText(), replaceField.getText()));
         });
@@ -53,7 +53,7 @@ public class ReplaceDialog {
 
         dialog.show();
         if (initialText != null) return;
-        if (app.hasOpenTab()) return;
+        if (!app.hasOpenTab()) return;
         if (findField.getText().isEmpty()) return;
         status.setText(app.getOpenTab().find(findField.getText()));
     }
