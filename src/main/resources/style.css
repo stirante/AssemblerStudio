@@ -100,3 +100,12 @@
     -fx-fill: #d53ec5;
 }
 
+/*noinspection CssUnusedSymbol*/
+.warning {
+    -rtfx-background-color: #6b6900;
+}
+
+/*noinspection CssUnusedSymbol*/
+.error {
+    -rtfx-background-color: #700007;
+}

@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Popup;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.MouseOverTextEvent;
+import org.fxmisc.richtext.model.TwoDimensional;
 
 /**
  * Created by stirante
@@ -40,6 +41,13 @@ public class TooltipPopup extends Popup {
             popupMsg.setText(s + ": " + s1);
             show(codeArea, pos.getX() + 15, pos.getY() + 15);
         } else {
+            for (SyntaxAnalyzer.Collision collision : view.getSyntaxAnalysis().collisions) {
+                if (collision.lines.contains(codeArea.offsetToPosition(chIdx, TwoDimensional.Bias.Forward).getMajor() + 1)) {
+                    popupMsg.setText("Collision address! (" + collision.address + "d, " + Integer.toHexString(collision.address) + "h)");
+                    show(codeArea, pos.getX() + 15, pos.getY() + 15);
+                    return;
+                }
+            }
             for (SyntaxAnalyzer.Field field : view.getSyntaxAnalysis().fields) {
                 if (field.name.equals(s) || s.equals("#" + field.name)) {
                     popupMsg.setText("Type: " + field.type +

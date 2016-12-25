@@ -69,8 +69,8 @@ public class CodeView extends Tab {
         codeArea.richChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
                 .subscribe(change -> {
-                    SyntaxHighlighter.computeHighlighting(codeArea);
                     checkChanges();
+                    SyntaxHighlighter.computeHighlighting(codeArea, syntaxAnalysis);
                 });
         loadFile();
         //load tab layout
@@ -135,7 +135,8 @@ public class CodeView extends Tab {
             if (first[0] == 0) first[0] = i;
         });
         SyntaxHighlighter.setPause(false);
-        SyntaxHighlighter.computeHighlighting(codeArea);
+        checkChanges();
+        SyntaxHighlighter.computeHighlighting(codeArea, syntaxAnalysis);
         if (wasSelected) {
             end += diff[0];
             codeArea.selectRange(start + first[0], end);
@@ -221,7 +222,7 @@ public class CodeView extends Tab {
             }
         });
 
-        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+        codeArea.setMouseOverTextDelay(Duration.ofMillis(700));
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, tooltipPopup::triggerTooltip);
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> tooltipPopup.hide());
     }
@@ -260,16 +261,6 @@ public class CodeView extends Tab {
     //checks changes between original code and the one inside editor and depending on the result changes tab title
     private void checkChanges() {
         syntaxAnalysis = SyntaxAnalyzer.analyze(codeArea.getText());
-        if (!syntaxAnalysis.collisions.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (SyntaxAnalyzer.Collision collision : syntaxAnalysis.collisions) {
-                sb.append("Address collision with address ").append(collision.address).append(" at:\n");
-                for (Integer line : collision.lines) {
-                    sb.append("\t").append(getText().replaceAll("\\*", "")).append("(").append(line).append(")\n");
-                }
-            }
-            app.compileResult.setText(sb.toString());
-        } else if (app.compileResult.getText().startsWith("Address")) app.compileResult.setText("");
         if (autocompletionPopup.isAutocompletion()) {
             autocompletionPopup.onChanges();
         }

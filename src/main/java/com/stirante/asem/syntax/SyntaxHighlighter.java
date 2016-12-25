@@ -1,12 +1,11 @@
 package com.stirante.asem.syntax;
 
 import com.stirante.asem.utils.AsyncTask;
+import com.stirante.asem.utils.BetterSpanBuilder;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +37,7 @@ public class SyntaxHighlighter {
     private static AtomicBoolean pause = new AtomicBoolean(false);
 
 
-    public static void computeHighlighting(final CodeArea text) {
+    public static void computeHighlighting(final CodeArea text, final SyntaxAnalyzer.AnalysisResult analysisResult) {
         final String str = text.getText();
         if (pause.get()) return;
         if (task != null) task.cancel();
@@ -46,9 +45,7 @@ public class SyntaxHighlighter {
             @Override
             public StyleSpans<Collection<String>> doInBackground(Void[] params) {
                 Matcher matcher = PATTERN.matcher(str.toUpperCase());
-                int lastKwEnd = 0;
-                StyleSpansBuilder<Collection<String>> spansBuilder
-                        = new StyleSpansBuilder<>();
+                BetterSpanBuilder builder = new BetterSpanBuilder();
                 while (matcher.find()) {
                     if (isCancelled()) return null;
                     String styleClass =
@@ -60,12 +57,16 @@ public class SyntaxHighlighter {
                                                                     matcher.group("DOLLAR") != null ? "dollar-thingy" :
                                                                             null; /* never happens */
                     assert styleClass != null;
-                    spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
-                    spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
-                    lastKwEnd = matcher.end();
+                    builder.addStyle(styleClass, matcher.start(), matcher.end());
                 }
-                spansBuilder.add(Collections.emptyList(), str.length() - lastKwEnd);
-                return spansBuilder.create();
+                for (SyntaxAnalyzer.Collision collision : analysisResult.collisions) {
+                    for (Integer line : collision.lines) {
+                        int start = text.position(line - 1, 0).toOffset();
+                        int end = text.position(line, 0).toOffset() - 1;
+                        builder.addStyle("warning", start, end);
+                    }
+                }
+                return builder.create(str);
             }
 
             @Override
@@ -80,6 +81,7 @@ public class SyntaxHighlighter {
         };
         task.execute();
     }
+
 
     public static void setPause(boolean value) {
         pause.set(value);
