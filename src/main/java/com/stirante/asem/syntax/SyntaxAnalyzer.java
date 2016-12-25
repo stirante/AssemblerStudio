@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class SyntaxAnalyzer {
     private static final Pattern FIELD = Pattern.compile("(\\w+)\\s+(\\w+)\\s+([\\w.-]+)\\s*;*(.*)");//#1 name, #2 type, #3 address, #4 comment
     private static final Pattern ROUTINE = Pattern.compile("(\\w+):\\s*;*(.*)");//#1 name, #2 comment
+    private static final Pattern OPERATION = Pattern.compile("\\s*([a-z]+)\\s*([@a-z0-9_,# /+*-]*[a-z0-9_])\\s*;*.*");//#1 mnemonic, #2 args
 
 
     public static AnalysisResult analyze(String source) {
@@ -44,6 +45,18 @@ public class SyntaxAnalyzer {
                     e.printStackTrace();
                 }
                 result.routines.add(r);
+                continue;
+            }
+            Matcher operationMatcher = OPERATION.matcher(line.toLowerCase());
+            if (operationMatcher.matches()) {
+                String mnemonic = operationMatcher.group(1).toUpperCase();
+                String args = operationMatcher.group(2).toLowerCase().replaceAll(" ", "");
+                if (mnemonic.equalsIgnoreCase("mov") && args.contains("@dptr")) {
+                    CodeError e = new CodeError();
+                    e.description = "You probably meant to use MOVX?";
+                    e.line = i + 1;
+                    result.errors.add(e);
+                }
             }
         }
         ArrayList<Collision> c = new ArrayList<>();
@@ -93,6 +106,7 @@ public class SyntaxAnalyzer {
         public ArrayList<Field> fields = new ArrayList<>();
         public ArrayList<Routine> routines = new ArrayList<>();
         public ArrayList<Collision> collisions = new ArrayList<>();
+        public ArrayList<CodeError> errors = new ArrayList<>();
 
         @Override
         public String toString() {
@@ -145,6 +159,19 @@ public class SyntaxAnalyzer {
         public String toString() {
             return "Collision{" +
                     "lines=" + lines +
+                    '}';
+        }
+    }
+
+    public static class CodeError {
+        public int line;
+        public String description = "";
+
+        @Override
+        public String toString() {
+            return "CodeError{" +
+                    "line=" + line +
+                    ", description='" + description + '\'' +
                     '}';
         }
     }

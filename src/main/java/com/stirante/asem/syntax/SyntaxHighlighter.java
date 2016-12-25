@@ -66,6 +66,11 @@ public class SyntaxHighlighter {
                         builder.addStyle("warning", start, end);
                     }
                 }
+                for (SyntaxAnalyzer.CodeError error : analysisResult.errors) {
+                    int start = text.position(error.line - 1, 0).toOffset();
+                    int end = text.position(error.line, 0).toOffset() - 1;
+                    builder.addStyle("error", start, end);
+                }
                 return builder.create(str);
             }
 

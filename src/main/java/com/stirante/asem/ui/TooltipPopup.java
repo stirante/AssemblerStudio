@@ -41,6 +41,13 @@ public class TooltipPopup extends Popup {
             popupMsg.setText(s + ": " + s1);
             show(codeArea, pos.getX() + 15, pos.getY() + 15);
         } else {
+            for (SyntaxAnalyzer.CodeError error : view.getSyntaxAnalysis().errors) {
+                if (error.line == codeArea.offsetToPosition(chIdx, TwoDimensional.Bias.Forward).getMajor() + 1) {
+                    popupMsg.setText(error.description);
+                    show(codeArea, pos.getX() + 15, pos.getY() + 15);
+                    return;
+                }
+            }
             for (SyntaxAnalyzer.Collision collision : view.getSyntaxAnalysis().collisions) {
                 if (collision.lines.contains(codeArea.offsetToPosition(chIdx, TwoDimensional.Bias.Forward).getMajor() + 1)) {
                     popupMsg.setText("Collision address! (" + collision.address + "d, " + Integer.toHexString(collision.address) + "h)");
