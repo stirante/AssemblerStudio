@@ -76,21 +76,22 @@ public class ArgumentVerifier {
             {IRAM_ADDR, IRAM_ADDR}
     };
 
-    public static boolean verify(String mnemonic, String args, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
+    public static MatchType checkStatus(String mnemonic, String args, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
         String[] split = args.split(",");
         switch (mnemonic) {
 //            case "MOV":
 //                for (Type[] types : MOV) {
 //                    if (types[0].matches(split[0], fields, routines) && types[1].matches(split[1], fields, routines)) return true;
 //                }
-//                return false;
+//                return MatchType.MATCH;
             case "JZ":
                 for (Type[] types : JZ) {
-                    if (types[0].matches(args, fields, routines)) return true;
+                    MatchType type = types[0].matches(args, fields, routines);
+                    if (type == MatchType.MATCH || type == MatchType.UNKNOWN_SYMBOL) return type;
                 }
-                return false;
+                return MatchType.NOT_MATCH;
             default:
-                return true;
+                return MatchType.MATCH;
         }
     }
 
@@ -120,17 +121,22 @@ public class ArgumentVerifier {
             pattern = Pattern.compile("^" + regex + "$");
         }
 
-        boolean matches(String str, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
+        MatchType matches(String str, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
             Matcher matcher = pattern.matcher(str);
             if (matcher.matches() && matcher.groupCount() == 1) {
                 String routine = matcher.group(1);
                 for (RoutineElement routineElement : routines) {
-                    if (routineElement.getName().equals(routine)) return true;
+                    if (routineElement.getName().equals(routine)) return MatchType.MATCH;
                 }
+                return MatchType.UNKNOWN_SYMBOL;
             }
-            return false;
+            return MatchType.NOT_MATCH;
         }
 
+    }
+
+    enum MatchType {
+        MATCH, NOT_MATCH, UNKNOWN_SYMBOL
     }
 
 }

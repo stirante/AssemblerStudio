@@ -63,8 +63,10 @@ public class SyntaxAnalyzer {
             if (operationMatcher.matches()) {
                 String mnemonic = operationMatcher.group(1).toUpperCase();
                 String args = operationMatcher.group(2).replaceAll(" ", "");
-                if (!ArgumentVerifier.verify(mnemonic, args, result.fields, result.routines)) {
-                    CodeErrorElement e = new CodeErrorElement(lineOffset + operationMatcher.start(1), lineOffset + operationMatcher.end(2), i + 1, "Wrong arguments!");
+                ArgumentVerifier.MatchType matchType = ArgumentVerifier.checkStatus(mnemonic, args, result.fields, result.routines);
+                if (matchType != ArgumentVerifier.MatchType.MATCH) {
+                    String desc = matchType == ArgumentVerifier.MatchType.UNKNOWN_SYMBOL ? "Unknown symbol!" : "Invalid arguments!";
+                    CodeErrorElement e = new CodeErrorElement(lineOffset + operationMatcher.start(1), lineOffset + operationMatcher.end(2), i + 1, desc);
                     result.errors.add(e);
                 }
             }
