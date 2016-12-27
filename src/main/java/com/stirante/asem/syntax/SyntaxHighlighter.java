@@ -26,7 +26,7 @@ public class SyntaxHighlighter {
     private static final String INSTRUCTION_PATTERN = "\\b(" + String.join("|", (CharSequence[]) INSTRUCTIONS) + ")\\b";
     private static final String DIRECTIVES_PATTERN = "\\b(" + String.join("|", (CharSequence[]) DIRECTIVES) + ")\\b";
     private static final String ALIASES_PATTERN = "\\b(" + String.join("|", (CharSequence[]) ALIASES) + ")\\b";
-    private static final String NUMBER_PATTERN = "\\\\W#?([01]+B|[0-9ABCDEF]+H|[0-9]+D?)";
+    private static final String NUMBER_PATTERN = "\\W#?([01]+B|[0-9ABCDEF]+H|[0-9]+D?)";
     private static final String COMMENT_PATTERN = ";.*";
     private static final String DOLLAR_PATTERN = "\\$.+";
     private static final Pattern PATTERN = Pattern.compile(
