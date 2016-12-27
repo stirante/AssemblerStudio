@@ -95,24 +95,24 @@ public class ArgumentVerifier {
     }
 
     enum Type {
-        AT_R0("@r0"),
-        AT_R1("@r1"),
-        C("c"),
-        R0("r0"),
-        R1("r1"),
-        R2("r2"),
-        R3("r3"),
-        R4("r4"),
-        R5("r5"),
-        R6("r6"),
-        R7("r7"),
+        AT_R0("@[rR]0"),
+        AT_R1("@[rR]1"),
+        C("[cC]"),
+        R0("[rR]0"),
+        R1("[rR]1"),
+        R2("[rR]2"),
+        R3("[rR]3"),
+        R4("[rR]4"),
+        R5("[rR]5"),
+        R6("[rR]6"),
+        R7("[rR]7"),
         BIT_ADDR(".+"),//TODO
         IRAM_ADDR(".+"),//TODO
         CODE_ADDR("([a-zA-Z0-9_]+)"),
-        DATA("#([0-9abcdef]+h|[0-9]+d*|[01]+b)"),
-        DATA_16("#([0-9abcdef]+h|[0-9]+d*|[01]+b)"),
-        DPTR("dptr"),
-        A("a");
+        DATA("#([0-9abcdefABCDEF]+[hH]|[0-9]+[dD]?|[01]+[bB])"),
+        DATA_16("#([0-9abcdefABCDEF]+[hH]|[0-9]+[dD]?|[01]+[bB])"),
+        DPTR("[dD][pP][tT][rR]"),
+        A("[aA]");
 
         private final Pattern pattern;
 
