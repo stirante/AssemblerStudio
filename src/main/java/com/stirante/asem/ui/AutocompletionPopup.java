@@ -61,11 +61,12 @@ public class AutocompletionPopup extends Popup {
                 if (item.equalsIgnoreCase("lcall\t\t")
                         || item.equalsIgnoreCase("sjmp\t\t")
                         || item.equalsIgnoreCase("ljmp\t\t")
-                        || item.equalsIgnoreCase("acall\t\t"))
+                        || item.equalsIgnoreCase("acall\t\t")
+                        || item.equalsIgnoreCase("jz\t\t"))
                     wasCall = true;
                 view.insert(item.substring(autoIndex));
                 hide();
-                if (wasMnemonic) {
+                if (wasMnemonic && !item.startsWith("ret")) {
                     triggerAutocompletion(wasCall);
                     wasMnemonic = false;
                 }
@@ -104,7 +105,8 @@ public class AutocompletionPopup extends Popup {
             String s1 = s.toUpperCase();
             for (String s2 : Constants.MNEMONIC_ARRAY) {
                 if (s2.startsWith(s1)) {
-                    suggestions.add(upperCase ? s2 + "\t\t" : s2.toLowerCase() + "\t\t");
+                    String tabs = s2.toLowerCase().startsWith("ret") ? "" : "\t\t";
+                    suggestions.add(upperCase ? s2 + tabs : s2.toLowerCase() + tabs);
                 }
             }
         } else {
