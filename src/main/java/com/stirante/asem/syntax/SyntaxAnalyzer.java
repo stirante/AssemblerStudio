@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class SyntaxAnalyzer {
     private static final Pattern FIELD = Pattern.compile("(\\w+)\\s+(\\w+)\\s+([\\w.-]+)\\s*;*(.*)");//#1 name, #2 type, #3 address, #4 comment
     private static final Pattern ROUTINE = Pattern.compile("(\\w+):\\s*;*(.*)");//#1 name, #2 comment
-    private static final Pattern OPERATION = Pattern.compile("\\s*([a-z]+)\\s*([@a-z0-9_,# /+*.-]*[a-z0-9._])\\s*;*.*");//#1 mnemonic, #2 args
+    private static final Pattern OPERATION = Pattern.compile("\\s*([a-zA-Z]+)\\s*([@a-zA-Z0-9_,# /+*.-]*[a-zA-Z0-9._])\\s*;*.*");//#1 mnemonic, #2 args
     private static final HashMap<Integer, String> RESERVED_ADDRESSES = new HashMap<>();
 
     static {
@@ -54,14 +54,17 @@ public class SyntaxAnalyzer {
             if (routineMatcher.matches()) {
                 result.routines.add(new RoutineElement(lineOffset + routineMatcher.start(1), lineOffset + routineMatcher.end(1), i + 1, routineMatcher.group(1), routineMatcher.group(2)));
                 lineOffset += line.length() + 1;
-                continue;
             }
-            Matcher operationMatcher = OPERATION.matcher(line.toLowerCase());
+        }
+        lineOffset = 0;
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            Matcher operationMatcher = OPERATION.matcher(line);
             if (operationMatcher.matches()) {
                 String mnemonic = operationMatcher.group(1).toUpperCase();
-                String args = operationMatcher.group(2).toLowerCase().replaceAll(" ", "");
-                if (!ArgumentVerifier.verify(mnemonic, args)) {
-                    CodeErrorElement e = new CodeErrorElement(lineOffset + operationMatcher.start(1), lineOffset + operationMatcher.end(2), i + 1, "Wrong parameters!");
+                String args = operationMatcher.group(2).replaceAll(" ", "");
+                if (!ArgumentVerifier.verify(mnemonic, args, result.fields, result.routines)) {
+                    CodeErrorElement e = new CodeErrorElement(lineOffset + operationMatcher.start(1), lineOffset + operationMatcher.end(2), i + 1, "Wrong arguments!");
                     result.errors.add(e);
                 }
             }

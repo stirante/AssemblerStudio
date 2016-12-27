@@ -5,14 +5,14 @@ import com.stirante.asem.ui.tooltip.TooltipContent;
 /**
  * Created by stirante
  */
-public class CodeWarning implements CodeElement, TooltipContent {
+public class CodeWarningElement implements CodeElement, TooltipContent {
 
     private int start;
     private int end;
     private int line;
     private String description;
 
-    public CodeWarning(int start, int end, int line, String description) {
+    public CodeWarningElement(int start, int end, int line, String description) {
         this.start = start;
         this.end = end;
         this.line = line;

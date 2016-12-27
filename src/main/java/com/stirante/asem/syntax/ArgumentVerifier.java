@@ -1,5 +1,9 @@
 package com.stirante.asem.syntax;
 
+import com.stirante.asem.syntax.code.FieldElement;
+import com.stirante.asem.syntax.code.RoutineElement;
+
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +13,9 @@ import static com.stirante.asem.syntax.ArgumentVerifier.Type.*;
  * Created by stirante
  */
 public class ArgumentVerifier {
+    private static Type[][] JZ = {
+            {CODE_ADDR}
+    };
     private static Type[][] MOV = {
             {AT_R0, DATA},
             {AT_R1, DATA},
@@ -69,12 +76,17 @@ public class ArgumentVerifier {
             {IRAM_ADDR, IRAM_ADDR}
     };
 
-    public static boolean verify(String mnemonic, String args) {
+    public static boolean verify(String mnemonic, String args, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
+        String[] split = args.split(",");
         switch (mnemonic) {
-            case "mov":
-                String[] split = args.split(",");
-                for (Type[] types : MOV) {
-                    if (types[0].matches(split[0]) && types[1].matches(split[1])) return true;
+//            case "MOV":
+//                for (Type[] types : MOV) {
+//                    if (types[0].matches(split[0], fields, routines) && types[1].matches(split[1], fields, routines)) return true;
+//                }
+//                return false;
+            case "JZ":
+                for (Type[] types : JZ) {
+                    if (types[0].matches(args, fields, routines)) return true;
                 }
                 return false;
             default:
@@ -96,8 +108,9 @@ public class ArgumentVerifier {
         R7("r7"),
         BIT_ADDR(".+"),//TODO
         IRAM_ADDR(".+"),//TODO
-        DATA("#([01]+b|[0-9]+d*|[0-9abcdef]+h)"),
-        DATA_16("#([01]+b|[0-9]+d*|[0-9abcdef]+h)"),
+        CODE_ADDR("([a-zA-Z0-9_]+)"),
+        DATA("#([0-9abcdef]+h|[0-9]+d*|[01]+b)"),
+        DATA_16("#([0-9abcdef]+h|[0-9]+d*|[01]+b)"),
         DPTR("dptr"),
         A("a");
 
@@ -107,9 +120,15 @@ public class ArgumentVerifier {
             pattern = Pattern.compile("^" + regex + "$");
         }
 
-        boolean matches(String str) {
+        boolean matches(String str, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
             Matcher matcher = pattern.matcher(str);
-            return matcher.matches();
+            if (matcher.matches() && matcher.groupCount() == 1) {
+                String routine = matcher.group(1);
+                for (RoutineElement routineElement : routines) {
+                    if (routineElement.getName().equals(routine)) return true;
+                }
+            }
+            return false;
         }
 
     }
