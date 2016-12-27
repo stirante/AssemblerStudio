@@ -1,0 +1,62 @@
+#Author: Filip Postępski
+#every line must look like this:
+#<name>,<address>h
+#address has to be hexadecimal and must end with lower case 'h'
+R0,00h
+R1,01h
+R2,02h
+R3,03h
+R4,04h
+R5,05h
+R6,06h
+R7,07h
+R0(bank 1),08h
+R1(bank 1),09h
+R2(bank 1),0Ah
+R3(bank 1),0Bh
+R4(bank 1),0Ch
+R5(bank 1),0Dh
+R6(bank 1),0Eh
+R7(bank 1),0Fh
+R0(bank 2),10h
+R1(bank 2),11h
+R2(bank 2),12h
+R3(bank 2),13h
+R4(bank 2),14h
+R5(bank 2),15h
+R6(bank 2),16h
+R7(bank 2),17h
+R0(bank 3),18h
+R1(bank 3),19h
+R2(bank 3),1Ah
+R3(bank 3),1Bh
+R4(bank 3),1Ch
+R5(bank 3),1Dh
+R6(bank 3),1Eh
+R7(bank 3),1Fh
+P0,80h
+SP,81h
+DPL,82h
+DPH,83h
+PCON,87h
+TCON,88h
+TMOD,89h
+TL0,8Ah
+TL1,8Bh
+TH0,8Ch
+TH1,8Dh
+P1,90h
+SCON,98h
+SBUF,99h
+P2,A0h
+IE,A8h
+P3,B0h
+IP,B8h
+T2CON,C8h
+RCAP2L,Cah
+RCAP2H,Cbh
+TL2,Cch
+TH2,Cdh
+PSW,D0h
+A,E0h
+B,F0h

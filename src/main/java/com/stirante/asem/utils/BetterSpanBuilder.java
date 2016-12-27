@@ -11,10 +11,10 @@ import java.util.Collection;
  */
 public class BetterSpanBuilder {
 
-    private ArrayList<Region> regions = new ArrayList<>();
+    private ArrayList<StyledRange> regions = new ArrayList<>();
 
     public void addStyle(String style, int start, int end) {
-        regions.add(new Region(start, end, style));
+        regions.add(new StyledRange(start, end, style));
     }
 
     public StyleSpans<Collection<String>> create(String str) {
@@ -24,8 +24,8 @@ public class BetterSpanBuilder {
         int start = 0;
         for (int i = 0; i < str.length(); i++) {
             temp.clear();
-            for (Region region : regions) {
-                if (region.contains(i)) temp.add(region.style);
+            for (StyledRange region : regions) {
+                if (region.contains(i)) temp.add(region.getStyle());
             }
             if (!styles.containsAll(temp) || !temp.containsAll(styles)) {
                 spansBuilder.add(styles, i - start);
@@ -38,24 +38,18 @@ public class BetterSpanBuilder {
         return spansBuilder.create();
     }
 
-    private int clamp(int i) {
-        return i < 0 ? 0 : i;
-    }
+    class StyledRange extends TextRange {
+        private String style;
 
-    class Region {
-        int start;
-        int end;
-        String style;
-
-        public Region(int start, int end, String style) {
-            this.start = start;
-            this.end = end;
+        public StyledRange(int start, int end, String style) {
+            super(start, end);
             this.style = style;
         }
 
-        boolean contains(int index) {
-            return index >= start && index < end;
+        public String getStyle() {
+            return style;
         }
+
     }
 
 }

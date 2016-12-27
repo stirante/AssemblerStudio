@@ -1,7 +1,11 @@
 package com.stirante.asem.syntax;
 
+import com.stirante.asem.syntax.code.CodeCollisionElement;
+import com.stirante.asem.syntax.code.CodeErrorElement;
+import com.stirante.asem.syntax.code.ReservedAddressCollisionElement;
 import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.BetterSpanBuilder;
+import com.stirante.asem.utils.TextRange;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 
@@ -22,7 +26,7 @@ public class SyntaxHighlighter {
     private static final String INSTRUCTION_PATTERN = "\\b(" + String.join("|", (CharSequence[]) INSTRUCTIONS) + ")\\b";
     private static final String DIRECTIVES_PATTERN = "\\b(" + String.join("|", (CharSequence[]) DIRECTIVES) + ")\\b";
     private static final String ALIASES_PATTERN = "\\b(" + String.join("|", (CharSequence[]) ALIASES) + ")\\b";
-    private static final String NUMBER_PATTERN = "[\\s#\\-+][0-9][0-9ABCDEFH]*";
+    private static final String NUMBER_PATTERN = "\\W#?([0-9ABCDEF]+H|[0-9]+D?|[01]+B)";//[\\s#\\-+][0-9ABCDEF][0-9ABCDEFH]*
     private static final String COMMENT_PATTERN = ";.*";
     private static final String DOLLAR_PATTERN = "\\$.+";
     private static final Pattern PATTERN = Pattern.compile(
@@ -59,17 +63,17 @@ public class SyntaxHighlighter {
                     assert styleClass != null;
                     builder.addStyle(styleClass, matcher.start(), matcher.end());
                 }
-                for (SyntaxAnalyzer.Collision collision : analysisResult.collisions) {
-                    for (Integer line : collision.lines) {
-                        int start = text.position(line - 1, 0).toOffset();
-                        int end = text.position(line, 0).toOffset() - 1;
-                        builder.addStyle("warning", start, end);
+                for (CodeCollisionElement collision : analysisResult.getCollisions()) {
+                    if (collision instanceof ReservedAddressCollisionElement) {
+                        builder.addStyle("warning", collision.getDefinitionStart(), collision.getDefinitionEnd());
+                    } else {
+                        for (TextRange range : collision.getRanges()) {
+                            builder.addStyle("warning", range.getStart(), range.getEnd());
+                        }
                     }
                 }
-                for (SyntaxAnalyzer.CodeError error : analysisResult.errors) {
-                    int start = text.position(error.line - 1, 0).toOffset();
-                    int end = text.position(error.line, 0).toOffset() - 1;
-                    builder.addStyle("error", start, end);
+                for (CodeErrorElement error : analysisResult.getErrors()) {
+                    builder.addStyle("error", error.getDefinitionStart(), error.getDefinitionEnd());
                 }
                 return builder.create(str);
             }

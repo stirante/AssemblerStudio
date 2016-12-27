@@ -1,6 +1,8 @@
 package com.stirante.asem.ui;
 
 import com.stirante.asem.syntax.Constants;
+import com.stirante.asem.syntax.code.FieldElement;
+import com.stirante.asem.syntax.code.RoutineElement;
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
@@ -107,8 +109,8 @@ public class AutocompletionPopup extends Popup {
             }
         } else {
             if (!wasCall)
-                suggestions.addAll(view.getSyntaxAnalysis().fields.stream().filter(field -> field.name.startsWith(s)).map(field -> field.name).collect(Collectors.toList()));
-            suggestions.addAll(view.getSyntaxAnalysis().routines.stream().filter(routine -> routine.name.startsWith(s)).map(routine -> routine.name).collect(Collectors.toList()));
+                suggestions.addAll(view.getSyntaxAnalysis().getFields().stream().filter(field -> field.getName().startsWith(s)).map(FieldElement::getName).collect(Collectors.toList()));
+            suggestions.addAll(view.getSyntaxAnalysis().getRoutines().stream().filter(routine -> routine.getName().startsWith(s)).map(RoutineElement::getName).collect(Collectors.toList()));
         }
         if (suggestions.isEmpty()) return false;
         try {

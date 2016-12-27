@@ -4,6 +4,9 @@ import com.stirante.asem.Main;
 import com.stirante.asem.syntax.Constants;
 import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
+import com.stirante.asem.syntax.code.FieldElement;
+import com.stirante.asem.syntax.code.RoutineElement;
+import com.stirante.asem.ui.tooltip.TooltipPopup;
 import com.stirante.asem.utils.AsyncTask;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -231,15 +234,15 @@ public class CodeView extends Tab {
         CharacterHit hit = codeArea.hit(event.getX(), event.getY());
         int index = hit.getInsertionIndex();
         String s = getWordAt(index);
-        for (SyntaxAnalyzer.Field field : syntaxAnalysis.fields) {
-            if (field.name.equals(s)) {
-                codeArea.moveTo(codeArea.position(field.line, 0).toOffset());
+        for (FieldElement field : syntaxAnalysis.getFields()) {
+            if (field.matches(s, 0, 0)) {
+                codeArea.moveTo(field.getDefinitionStart());
                 return;
             }
         }
-        for (SyntaxAnalyzer.Routine routine : syntaxAnalysis.routines) {
-            if (routine.name.equals(s)) {
-                codeArea.moveTo(codeArea.position(routine.line, 0).toOffset());
+        for (RoutineElement routine : syntaxAnalysis.getRoutines()) {
+            if (routine.matches(s, 0, 0)) {
+                codeArea.moveTo(routine.getDefinitionStart());
                 return;
             }
         }

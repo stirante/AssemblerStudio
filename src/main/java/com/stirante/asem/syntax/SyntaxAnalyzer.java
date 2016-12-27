@@ -1,6 +1,12 @@
 package com.stirante.asem.syntax;
 
+import com.stirante.asem.syntax.code.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -11,168 +17,123 @@ import java.util.stream.Collectors;
 public class SyntaxAnalyzer {
     private static final Pattern FIELD = Pattern.compile("(\\w+)\\s+(\\w+)\\s+([\\w.-]+)\\s*;*(.*)");//#1 name, #2 type, #3 address, #4 comment
     private static final Pattern ROUTINE = Pattern.compile("(\\w+):\\s*;*(.*)");//#1 name, #2 comment
-    private static final Pattern OPERATION = Pattern.compile("\\s*([a-z]+)\\s*([@a-z0-9_,# /+*-]*[a-z0-9_])\\s*;*.*");//#1 mnemonic, #2 args
+    private static final Pattern OPERATION = Pattern.compile("\\s*([a-z]+)\\s*([@a-z0-9_,# /+*.-]*[a-z0-9._])\\s*;*.*");//#1 mnemonic, #2 args
+    private static final HashMap<Integer, String> RESERVED_ADDRESSES = new HashMap<>();
+
+    static {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(SyntaxAnalyzer.class.getResourceAsStream("/reserved_addresses.csv")));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#")) continue;
+                String[] split = line.split(",");
+                String name = split[0];
+                Integer address = Integer.parseInt(split[1].replaceAll("h", ""), 16);
+                RESERVED_ADDRESSES.put(address, name);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public static AnalysisResult analyze(String source) {
         String[] lines = source.split("\n");
         AnalysisResult result = new AnalysisResult();
+        int lineOffset = 0;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             Matcher fieldMatcher = FIELD.matcher(line);
             if (fieldMatcher.matches()) {
-                Field f = new Field();
-                f.name = fieldMatcher.group(1);
-                f.type = fieldMatcher.group(2).toUpperCase();
-                f.address = fieldMatcher.group(3);
-                f.line = i;
-                try {
-                    f.comment = fieldMatcher.group(4);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.fields.add(f);
+                result.fields.add(new FieldElement(lineOffset + fieldMatcher.start(1), lineOffset + fieldMatcher.end(1), i + 1, fieldMatcher.group(1), fieldMatcher.group(2).toUpperCase(), fieldMatcher.group(3), fieldMatcher.group(4)));
+                lineOffset += line.length() + 1;
                 continue;
             }
             Matcher routineMatcher = ROUTINE.matcher(line);
             if (routineMatcher.matches()) {
-                Routine r = new Routine();
-                r.line = i;
-                r.name = routineMatcher.group(1);
-                try {
-                    r.comment = routineMatcher.group(2);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.routines.add(r);
+                result.routines.add(new RoutineElement(lineOffset + routineMatcher.start(1), lineOffset + routineMatcher.end(1), i + 1, routineMatcher.group(1), routineMatcher.group(2)));
+                lineOffset += line.length() + 1;
                 continue;
             }
             Matcher operationMatcher = OPERATION.matcher(line.toLowerCase());
             if (operationMatcher.matches()) {
                 String mnemonic = operationMatcher.group(1).toUpperCase();
                 String args = operationMatcher.group(2).toLowerCase().replaceAll(" ", "");
-                if (mnemonic.equalsIgnoreCase("mov") && args.contains("@dptr")) {
-                    CodeError e = new CodeError();
-                    e.description = "You probably meant to use MOVX?";
-                    e.line = i + 1;
+                if (!ArgumentVerifier.verify(mnemonic, args)) {
+                    CodeErrorElement e = new CodeErrorElement(lineOffset + operationMatcher.start(1), lineOffset + operationMatcher.end(2), i + 1, "Wrong parameters!");
                     result.errors.add(e);
                 }
             }
+            lineOffset += line.length() + 1;
         }
-        ArrayList<Collision> c = new ArrayList<>();
-        for (Field field : result.fields) {
-            if (field.type.equalsIgnoreCase("equ")) continue;
-            int address;
-            String a = field.address.replace("#", "");
-            if (a.contains("b")) {
-                try {
-                    address = Integer.parseInt(a.replaceAll("b", ""), 2);
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-            } else if (a.contains("h")) {
-                try {
-                    address = Integer.parseInt(a.replaceAll("h", ""), 16);
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-            } else {
-                try {
-                    address = Integer.parseInt(a.replaceAll("d", ""));
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-            }
+        ArrayList<CodeCollisionElement> c = new ArrayList<>();
+        for (FieldElement field : result.fields) {
+            if (field.getFieldType().equalsIgnoreCase("equ")) continue;
+            int address = parseAddress(field.getValue());
+            if (address == -1) continue;
             boolean found = false;
-            for (Collision collision : c) {
-                if (collision.address == address) {
-                    collision.lines.add(field.line + 1);
+            for (CodeCollisionElement collision : c) {
+                if (collision.getAddress() == address) {
+                    collision.addCollision(field.getDefinitionStart(), field.getDefinitionEnd(), field.getDefinitionLine());
                     found = true;
                 }
             }
             if (!found) {
-                Collision e = new Collision();
-                e.lines.add(field.line + 1);
-                e.address = address;
+                CodeCollisionElement e = new CodeCollisionElement(field.getDefinitionStart(), field.getDefinitionEnd(), field.getDefinitionLine(), address);
                 c.add(e);
             }
+            if (RESERVED_ADDRESSES.containsKey(address))
+                c.add(new ReservedAddressCollisionElement(field.getDefinitionStart(), field.getDefinitionEnd(), field.getDefinitionLine(), address, RESERVED_ADDRESSES.get(address)));
         }
-        result.collisions.addAll(c.stream().filter(collision -> collision.lines.size() > 1).collect(Collectors.toList()));
+        result.collisions.addAll(c.stream().filter(collision -> collision.getRanges().size() > 1 || collision instanceof ReservedAddressCollisionElement).collect(Collectors.toList()));
         return result;
+    }
+
+    private static int parseAddress(String s) {
+        String a = s.replace("#", "");
+        if (a.contains("b")) {
+            try {
+                return Integer.parseInt(a.replaceAll("b", ""), 2);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else if (a.contains("h")) {
+            try {
+                return Integer.parseInt(a.replaceAll("h", ""), 16);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else {
+            try {
+                return Integer.parseInt(a.replaceAll("d", ""));
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        }
     }
 
 
     public static class AnalysisResult {
-        public ArrayList<Field> fields = new ArrayList<>();
-        public ArrayList<Routine> routines = new ArrayList<>();
-        public ArrayList<Collision> collisions = new ArrayList<>();
-        public ArrayList<CodeError> errors = new ArrayList<>();
+        private ArrayList<FieldElement> fields = new ArrayList<>();
+        private ArrayList<RoutineElement> routines = new ArrayList<>();
+        private ArrayList<CodeCollisionElement> collisions = new ArrayList<>();
+        private ArrayList<CodeErrorElement> errors = new ArrayList<>();
 
-        @Override
-        public String toString() {
-            return "AnalysisResult{" +
-                    "fields=" + fields +
-                    ", routines=" + routines +
-                    '}';
+        public ArrayList<FieldElement> getFields() {
+            return fields;
         }
-    }
 
-    public static class Field {
-        public String name;
-        public String type;
-        public String address;
-        public String comment = "";
-        public int line;
-
-        @Override
-        public String toString() {
-            return "Field{" +
-                    "name='" + name + '\'' +
-                    ", type='" + type + '\'' +
-                    ", address='" + address + '\'' +
-                    ", comment='" + comment + '\'' +
-                    ", line=" + line +
-                    '}';
+        public ArrayList<RoutineElement> getRoutines() {
+            return routines;
         }
-    }
 
-    public static class Routine {
-        public String name;
-        public String comment = "";
-        public int line;
-
-        @Override
-        public String toString() {
-            return "Routine{" +
-                    "name='" + name + '\'' +
-                    ", comment='" + comment + '\'' +
-                    ", line=" + line +
-                    '}';
+        public ArrayList<CodeCollisionElement> getCollisions() {
+            return collisions;
         }
-    }
 
-    public static class Collision {
-        public int address;
-        public ArrayList<Integer> lines = new ArrayList<>();
-
-        @Override
-        public String toString() {
-            return "Collision{" +
-                    "lines=" + lines +
-                    '}';
-        }
-    }
-
-    public static class CodeError {
-        public int line;
-        public String description = "";
-
-        @Override
-        public String toString() {
-            return "CodeError{" +
-                    "line=" + line +
-                    ", description='" + description + '\'' +
-                    '}';
+        public ArrayList<CodeErrorElement> getErrors() {
+            return errors;
         }
     }
 
