@@ -18,6 +18,10 @@ public class MnemonicArguments {
     public static ArgumentVerifier.Type[][] LJMP = {
             {CODE_ADDR}
     };
+    public static ArgumentVerifier.Type[][] DIV = {
+            {A_B}
+    };
+
 //    public static ArgumentVerifier.Type[][] MOV = {
 //            {AT_R0, DATA},
 //            {AT_R1, DATA},

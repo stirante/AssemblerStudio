@@ -57,6 +57,7 @@ public class ArgumentVerifier {
     }
 
     enum Type {
+        A_B("[aA][bB]"),
         AT_R0("@[rR]0"),
         AT_R1("@[rR]1"),
         C("[cC]"),
@@ -90,6 +91,8 @@ public class ArgumentVerifier {
                     if (routineElement.getName().equals(routine)) return MatchType.MATCH;
                 }
                 return MatchType.UNKNOWN_SYMBOL;
+            } else if (matcher.matches()) {
+                return MatchType.MATCH;
             }
             return MatchType.NOT_MATCH;
         }
