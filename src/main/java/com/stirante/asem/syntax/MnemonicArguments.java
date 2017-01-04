@@ -21,6 +21,25 @@ public class MnemonicArguments {
     public static ArgumentVerifier.Type[][] DIV = {
             {A_B}
     };
+    public static ArgumentVerifier.Type[][] RL = {
+            {A}
+    };
+    public static ArgumentVerifier.Type[][] RLC = {
+            {A}
+    };
+    public static ArgumentVerifier.Type[][] RR = {
+            {A}
+    };
+    public static ArgumentVerifier.Type[][] RRC = {
+            {A}
+    };
+    public static ArgumentVerifier.Type[][] SWAP = {
+            {A}
+    };
+    public static ArgumentVerifier.Type[][] XCHD = {
+            {A, AT_R0},
+            {A, AT_R1}
+    };
 
 //    public static ArgumentVerifier.Type[][] MOV = {
 //            {AT_R0, DATA},

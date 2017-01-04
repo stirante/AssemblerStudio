@@ -44,37 +44,38 @@ public class CodeView extends Tab {
     public StackPane content;
     private ContextMenu context;
     private MenuItem copyItem;
-    private Main app;
     private File file;
     private CodeArea codeArea;
     private boolean changed = false;
     private String original = "";
     private SyntaxAnalyzer.AnalysisResult syntaxAnalysis;
     private AutocompletionPopup autocompletionPopup;
+    private SyntaxHighlighter highlighter;
 
     public CodeView(Main app, File f) {
-        this.app = app;
         this.file = f;
         //handle tab close
         setOnCloseRequest(event -> onClose());
 
         codeArea = new CodeArea();
 
+        highlighter = new SyntaxHighlighter(this, codeArea);
         autocompletionPopup = new AutocompletionPopup(this, codeArea);
         tooltipPopup = new TooltipPopup(this, codeArea);
 
+        checkChanges();
         initMouse();
         initKeyboard();
 
         codeArea.setStyle("-fx-font-family: " + Settings.getInstance().getFont().getFamily() + ";-fx-font-size: " + Settings.getInstance().getFont().getSize() + ";");
         Settings.getInstance().fontProperty().addListener((observable, oldValue, newValue) -> codeArea.setStyle("-fx-font-family: " + newValue.getFamily() + ";-fx-font-size: " + newValue.getSize() + ";"));
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
-        codeArea.richChanges()
-                .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
-                .subscribe(change -> {
-                    checkChanges();
-                    SyntaxHighlighter.computeHighlighting(codeArea, syntaxAnalysis);
-                });
+        codeArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            checkChanges();
+            highlighter.computeHighlighting();
+        });
+//        codeArea.richChanges()
+//                .subscribe(change -> highlighter.richChanges(codeArea));
         loadFile();
         //load tab layout
         FXMLLoader loader = new FXMLLoader(CodeView.class.getResource("/Tab.fxml"));
@@ -108,6 +109,16 @@ public class CodeView extends Tab {
                 triggerComment();
                 event.consume();
             }
+            else if (event.getCode() == KeyCode.CONTROL) {
+//                highlighter.setShowClickables(true);
+//                highlighter.computeHighlighting();
+            }
+        });
+        codeArea.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.CONTROL) {
+//                highlighter.setShowClickables(false);
+//                highlighter.computeHighlighting();
+            }
         });
     }
 
@@ -129,7 +140,7 @@ public class CodeView extends Tab {
                 lines.add(i);
             }
         }
-        SyntaxHighlighter.setPause(true);
+        highlighter.setPause(true);
         final int[] diff = {0};
         final int[] first = {0};
         lines.forEach(integer -> {
@@ -137,9 +148,9 @@ public class CodeView extends Tab {
             diff[0] += i;
             if (first[0] == 0) first[0] = i;
         });
-        SyntaxHighlighter.setPause(false);
+        highlighter.setPause(false);
         checkChanges();
-        SyntaxHighlighter.computeHighlighting(codeArea, syntaxAnalysis);
+        highlighter.computeHighlighting();
         if (wasSelected) {
             end += diff[0];
             codeArea.selectRange(start + first[0], end);
@@ -194,6 +205,7 @@ public class CodeView extends Tab {
                     codeArea.moveTo(0);
                     codeArea.getUndoManager().forgetHistory();
                     codeArea.getUndoManager().mark();
+                    checkChanges();
                 }
             }.execute();
         } else changed = true;
@@ -228,6 +240,27 @@ public class CodeView extends Tab {
         codeArea.setMouseOverTextDelay(Duration.ofMillis(700));
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, tooltipPopup::triggerTooltip);
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> tooltipPopup.hide());
+
+//        codeArea.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
+//            String wordAt = getWordAt(newValue);
+//            String old = highlighter.getHighlightWord();
+//            for (RoutineElement element : syntaxAnalysis.getRoutines()) {
+//                if (element.getName().equals(wordAt)) {
+//                    highlighter.setHighlightWord(wordAt);
+//                    highlighter.computeHighlighting();
+//                    return;
+//                }
+//            }
+//            for (FieldElement element : syntaxAnalysis.getFields()) {
+//                if (element.getName().equals(wordAt)) {
+//                    highlighter.setHighlightWord(wordAt);
+//                    highlighter.computeHighlighting();
+//                    return;
+//                }
+//            }
+//            highlighter.setHighlightWord("");
+//            if (!old.isEmpty()) highlighter.computeHighlighting();
+//        });
     }
 
     private void triggerGoTo(MouseEvent event) {
@@ -242,6 +275,7 @@ public class CodeView extends Tab {
         }
         for (RoutineElement routine : syntaxAnalysis.getRoutines()) {
             if (routine.matches(s, 0, 0)) {
+                System.out.println(routine.getDefinitionStart());
                 codeArea.moveTo(routine.getDefinitionStart());
                 return;
             }

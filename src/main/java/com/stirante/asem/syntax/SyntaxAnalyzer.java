@@ -53,8 +53,8 @@ public class SyntaxAnalyzer {
             Matcher routineMatcher = ROUTINE.matcher(line);
             if (routineMatcher.matches()) {
                 result.routines.add(new RoutineElement(lineOffset + routineMatcher.start(1), lineOffset + routineMatcher.end(1), i + 1, routineMatcher.group(1), routineMatcher.group(2)));
-                lineOffset += line.length() + 1;
             }
+            lineOffset += line.length() + 1;
         }
         lineOffset = 0;
         for (int i = 0; i < lines.length; i++) {

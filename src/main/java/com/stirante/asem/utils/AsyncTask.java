@@ -21,6 +21,8 @@ public abstract class AsyncTask<P, T, R> {
                 done.set(true);
                 if (!isCancelled())
                     Platform.runLater(() -> onPostExecute(result));
+                if (isCancelled())
+                    Platform.runLater(() -> onCancel());
             }
         }.start();
     }
@@ -42,6 +44,8 @@ public abstract class AsyncTask<P, T, R> {
     public boolean isCancelled() {
         return cancelled.get();
     }
+
+    public void onCancel() { }
 
     public boolean isDone() {
         return done.get();

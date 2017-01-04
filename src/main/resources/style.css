@@ -109,3 +109,14 @@
 .error {
     -rtfx-background-color: #700007;
 }
+
+/*noinspection CssUnusedSymbol*/
+.clickable {
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+/*noinspection CssUnusedSymbol*/
+.highlight {
+    -rtfx-background-color: #0d3f00;
+}
