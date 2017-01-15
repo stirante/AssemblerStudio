@@ -1,7 +1,7 @@
 package com.stirante.asem.ui;
 
 import com.stirante.asem.Main;
-import com.stirante.asem.syntax.Constants;
+import com.stirante.asem.Constants;
 import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
 import com.stirante.asem.syntax.code.FieldElement;
@@ -433,6 +433,38 @@ public class CodeView extends Tab {
         } catch (IOException e) {
             e.printStackTrace();
             return "Failed to run emulator!\n" + e.getMessage();
+        }
+    }
+
+    public String sendHex() {
+        //find hex file
+        File hex = new File(file.getParentFile(), file.getName().substring(0, file.getName().lastIndexOf('.')) + ".hex");
+        if (!hex.exists()) return "You need to compile file first!";
+        String ini = "nastawy programu Hex_Sender\r\n" +
+                hex.getParentFile().getAbsolutePath() + "\\\r\n" +
+                "1\r\n" +
+                hex.getName() + "\r\n";
+        File iniFile = new File("bin/hex_sender.ini");
+        try {
+            iniFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(iniFile);
+            fos.write(ini.getBytes());
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to set config file!\n" + e.getMessage();
+        }
+        File file = new File("bin/hex_sender.exe");
+        ProcessBuilder pb = new ProcessBuilder(file.getAbsolutePath());
+        pb.directory(file.getParentFile());
+        try {
+            //start process
+            pb.start();
+            return "Hex sender started with file " + hex.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to run hex sender!\n" + e.getMessage();
         }
     }
 

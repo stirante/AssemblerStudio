@@ -1,6 +1,5 @@
 package com.stirante.asem;
 
-import com.stirante.asem.syntax.Constants;
 import com.stirante.asem.ui.*;
 import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.UpdateUtil;
@@ -17,6 +16,7 @@ import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,6 +212,30 @@ public class Main extends Application {
                     Main.this.compileResult.setText(compileResult);
                 }
             }.execute();
+        }
+    }
+
+    public void onSendClicked() {
+        if (hasOpenTab()) {
+            if (!getOpenTab().save()) {
+                compileResult.setText("You need to save and compile file first!");
+                return;
+            }
+            compileResult.setText(getOpenTab().sendHex());
+        }
+    }
+
+    public String onSetBiosClicked() {
+        File file = new File("bin/set_bios.exe");
+        ProcessBuilder pb = new ProcessBuilder(file.getAbsolutePath());
+        pb.directory(file.getParentFile());
+        try {
+            //start process
+            pb.start();
+            return "Set bios started";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to run set bios!\n" + e.getMessage();
         }
     }
 

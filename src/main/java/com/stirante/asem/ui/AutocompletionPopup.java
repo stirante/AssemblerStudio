@@ -1,6 +1,6 @@
 package com.stirante.asem.ui;
 
-import com.stirante.asem.syntax.Constants;
+import com.stirante.asem.Constants;
 import com.stirante.asem.syntax.code.FieldElement;
 import com.stirante.asem.syntax.code.RoutineElement;
 import com.sun.javafx.collections.ObservableListWrapper;

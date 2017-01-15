@@ -1,7 +1,7 @@
 package com.stirante.asem.utils;
 
 import com.stirante.asem.Main;
-import com.stirante.asem.syntax.Constants;
+import com.stirante.asem.Constants;
 import com.stirante.asem.ui.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
