@@ -1,7 +1,7 @@
 package com.stirante.asem.ui;
 
-import com.stirante.asem.Main;
 import com.stirante.asem.Constants;
+import com.stirante.asem.Main;
 import com.stirante.asem.syntax.SyntaxAnalyzer;
 import com.stirante.asem.syntax.SyntaxHighlighter;
 import com.stirante.asem.syntax.code.FieldElement;
@@ -109,17 +109,34 @@ public class CodeView extends Tab {
                 triggerComment();
                 event.consume();
             }
-            else if (event.getCode() == KeyCode.CONTROL) {
+//            else if (event.getCode() == KeyCode.CONTROL) {
 //                highlighter.setShowClickables(true);
 //                highlighter.computeHighlighting();
+//            }
+            else if (event.getCode() == KeyCode.ENTER) {
+                int l = codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward).getMajor() - 1;
+                int start = codeArea.position(l, 0).toOffset();
+                int end;
+                int diff = 0;
+                try {
+                    end = codeArea.position(l + 1, 0).toOffset() - 1;
+                } catch (Exception e) {
+                    end = codeArea.getLength();
+                }
+                String line = codeArea.getText().substring(start, end);
+                Matcher matcher = Constants.WHITESPACE.matcher(line);
+                if (matcher.matches()) {
+                    String str = matcher.group(1);
+                    codeArea.insertText(codeArea.getCaretPosition(), str);
+                }
             }
         });
-        codeArea.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.CONTROL) {
+//        codeArea.setOnKeyReleased(event -> {
+//            if (event.getCode() == KeyCode.CONTROL) {
 //                highlighter.setShowClickables(false);
 //                highlighter.computeHighlighting();
-            }
-        });
+//            }
+//        });
     }
 
     private void triggerComment() {
