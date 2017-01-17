@@ -1,7 +1,5 @@
 package com.stirante.asem.utils;
 
-import com.sun.istack.internal.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -34,7 +32,7 @@ public class FileObserver {
         observer.start();
     }
 
-    public void registerListener(@NotNull Path path, @NotNull FileEventListener listener) {
+    public void registerListener(Path path, FileEventListener listener) {
         try {
             WatchKey register = path.register(watcher,
                     ENTRY_CREATE,
