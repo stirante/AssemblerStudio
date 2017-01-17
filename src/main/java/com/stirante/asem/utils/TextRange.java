@@ -37,6 +37,10 @@ public class TextRange {
         return line;
     }
 
+    public String getString(String text) {
+        return text.substring(getStart(), getEnd());
+    }
+
     public boolean contains(int index) {
         return index >= start && index < end;
     }
