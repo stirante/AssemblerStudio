@@ -28,8 +28,8 @@ public class SyntaxHighlighter {
     private static final String DIRECTIVES_PATTERN = "\\s(" + String.join("|", (CharSequence[]) DIRECTIVES) + ")\\b";
     private static final String ALIASES_PATTERN = "\\b(" + String.join("|", (CharSequence[]) ALIASES) + ")\\b";
     private static final String NUMBER_PATTERN = "\\W#?([01]+B|[0-9ABCDEF]+H|[0-9]+D?)\\b";
-    private static final String COMMENT_PATTERN = "(;.*)";
-    private static final String DOLLAR_PATTERN = "(\\$.+)";
+    private static final String COMMENT_PATTERN = ";.*";
+    private static final String DOLLAR_PATTERN = "\\$.+";
     private static final Pattern PATTERN = Pattern.compile(
             "(?<INSTRUCTION>" + INSTRUCTION_PATTERN + ")"
                     + "|(?<DIRECTIVE>" + DIRECTIVES_PATTERN + ")"
@@ -81,7 +81,7 @@ public class SyntaxHighlighter {
                                                                     matcher.group("DOLLAR") != null ? "dollar-thingy" :
                                                                             null; /* never happens */
                     assert styleClass != null;
-                    builder.addStyle(styleClass, matcher.start(1), matcher.end(1));
+                    builder.addStyle(styleClass, matcher.start(), matcher.end());
                 }
                 for (CodeCollisionElement collision : codeView.getSyntaxAnalysis().getCollisions()) {
                     if (collision instanceof ReservedAddressCollisionElement) {
