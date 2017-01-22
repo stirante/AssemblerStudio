@@ -1,13 +1,14 @@
 package com.stirante.asem.utils;
 
-import com.stirante.asem.Main;
 import com.stirante.asem.Constants;
+import com.stirante.asem.Main;
 import com.stirante.asem.ui.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -55,20 +56,25 @@ public class UpdateUtil {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("There is new version!");
                     alert.setHeaderText(null);
-                    alert.setContentText("Do you want to download it?");
+                    alert.setContentText("Do you want to update?");
                     alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
                     ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                    ButtonType portable = new ButtonType("Yes (Portable)", ButtonBar.ButtonData.YES);
+//                    ButtonType portable = new ButtonType("Yes (Portable)", ButtonBar.ButtonData.YES);
                     ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
-                    alert.getButtonTypes().setAll(yes, portable, no);
+                    alert.getButtonTypes().setAll(yes/*, portable*/, no);
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == yes) {
-                        app.getHostServices().showDocument(ZIP);
-                    } else if (result.isPresent() && result.get() == portable) {
+                        try {
+                            Runtime.getRuntime().exec("java -jar SimpleUpdater.jar check .");
+                            System.exit(0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } /*else if (result.isPresent() && result.get() == portable) {
                         app.getHostServices().showDocument(ZIP_PORTABLE);
-                    }
+                    }*/
                 }
             }
         }.execute();

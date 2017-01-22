@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class SyntaxAnalyzer {
     private static final Pattern FIELD = Pattern.compile("(\\w+)\\s+(\\w+)\\s+([\\w.-]+)\\s*;*(.*)");//#1 name, #2 type, #3 address, #4 comment
-    private static final Pattern ROUTINE = Pattern.compile("(\\w+):\\s*;*(.*)");//#1 name, #2 comment
+    private static final Pattern ROUTINE = Pattern.compile("\\s*(\\w+):\\s*;*(.*)");//#1 name, #2 comment
     private static final Pattern OPERATION = Pattern.compile("\\s*([a-zA-Z]+)\\s+([@a-zA-Z0-9_,# /+*.-]*[a-zA-Z0-9._])\\s*;*.*");//#1 mnemonic, #2 args
     private static final HashMap<Integer, String> RESERVED_ADDRESSES = new HashMap<>();
 
