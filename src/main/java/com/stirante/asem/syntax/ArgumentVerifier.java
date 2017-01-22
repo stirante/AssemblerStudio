@@ -88,7 +88,7 @@ public class ArgumentVerifier {
             if (matcher.matches() && matcher.groupCount() == 1) {
                 String routine = matcher.group(1);
                 for (RoutineElement routineElement : routines) {
-                    if (routineElement.getName().equals(routine)) return MatchType.MATCH;
+                    if (routineElement.getName().equalsIgnoreCase(routine)) return MatchType.MATCH;
                 }
                 return MatchType.UNKNOWN_SYMBOL;
             } else if (matcher.matches()) {

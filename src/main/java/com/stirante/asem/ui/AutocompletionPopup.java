@@ -10,11 +10,8 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Popup;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.TwoDimensional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
@@ -29,7 +26,6 @@ public class AutocompletionPopup extends Popup {
     private final CodeView view;
     private final CodeArea codeArea;
     ObservableListWrapper<String> items = new ObservableListWrapper<>(new ArrayList<>());
-    private Method m;
     private boolean autocomplete = false;
     private int autoIndex = 0;
     private boolean wasMnemonic = false;
@@ -38,13 +34,6 @@ public class AutocompletionPopup extends Popup {
         this.view = view;
         this.codeArea = codeArea;
         list = new ListView<>();
-        try {
-            m = StyledTextArea.class.getDeclaredMethod("getCaretBoundsOnScreen");
-            m.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return;
-        }
         list.setStyle(
                 "-fx-background-color: #2e2e2e;" +
                         "-fx-text-fill: #8a8a8a;" +
@@ -115,18 +104,14 @@ public class AutocompletionPopup extends Popup {
             suggestions.addAll(view.getSyntaxAnalysis().getRoutines().stream().filter(routine -> routine.getName().startsWith(s)).map(RoutineElement::getName).collect(Collectors.toList()));
         }
         if (suggestions.isEmpty()) return false;
-        try {
-            Optional invoke = (Optional) m.invoke(codeArea);
-            if (invoke.isPresent()) {
-                Bounds b = (Bounds) invoke.get();
-                autoIndex = s.length();
-                setSuggestions(suggestions);
-                autocomplete = true;
-                show(codeArea, b.getMinX(), b.getMaxY());
-                return true;
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+        Optional invoke = codeArea.getCaretBounds();
+        if (invoke.isPresent()) {
+            Bounds b = (Bounds) invoke.get();
+            autoIndex = s.length();
+            setSuggestions(suggestions);
+            autocomplete = true;
+            show(codeArea, b.getMinX(), b.getMaxY());
+            return true;
         }
         return false;
     }

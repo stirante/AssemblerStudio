@@ -5,6 +5,7 @@ apply plugin: 'java'
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 task createJar(type: Jar) {
     archiveName = project.name + '.jar'
@@ -18,6 +19,7 @@ task createJar(type: Jar) {
 }
 task buildApp(dependsOn: [clean, createJar])
 dependencies {
-    compile files('libs/richtextfx-fat-0.7-M2.jar')
+//    compile files('libs/richtextfx-fat-0.7-M2.jar')
+    compile 'com.github.TomasMikula:RichTextFX:master-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
