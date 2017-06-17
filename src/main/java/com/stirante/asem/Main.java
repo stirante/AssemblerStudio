@@ -380,6 +380,15 @@ public class Main extends Application {
         HelpDialog.show();
     }
 
+    public void onForceUpdateClicked() {
+        try {
+            Runtime.getRuntime().exec("java -jar SimpleUpdater.jar check .");
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void lcdCreator() {
         if (hasOpenTab()) {
             String bits = LcdCreator.create();

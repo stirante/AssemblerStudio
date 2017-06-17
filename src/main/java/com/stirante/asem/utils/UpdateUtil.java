@@ -20,9 +20,7 @@ import java.util.Optional;
  */
 public class UpdateUtil {
 
-    private static final String JAR_VERSION = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/version.txt";
-    private static final String ZIP = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/AssemblerStudio.zip";
-    private static final String ZIP_PORTABLE = "https://dl.dropboxusercontent.com/u/102090098/Projects/AssemblerEditor/AssemblerStudio%20-%20Portable.zip";
+    private static final String JAR_VERSION = "http://storage.stirante.com.s3-us-west-2.amazonaws.com/version.txt";
 
     public static void check(Main app) {
         if (!Settings.getInstance().isCheckingUpdate()) return;
@@ -60,9 +58,8 @@ public class UpdateUtil {
                     alert.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
                     ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-//                    ButtonType portable = new ButtonType("Yes (Portable)", ButtonBar.ButtonData.YES);
                     ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
-                    alert.getButtonTypes().setAll(yes/*, portable*/, no);
+                    alert.getButtonTypes().setAll(yes, no);
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == yes) {
@@ -72,9 +69,7 @@ public class UpdateUtil {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    } /*else if (result.isPresent() && result.get() == portable) {
-                        app.getHostServices().showDocument(ZIP_PORTABLE);
-                    }*/
+                    }
                 }
             }
         }.execute();

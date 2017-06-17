@@ -44,7 +44,11 @@ public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLin
             lastKwEnd = matcher.end();
         }
         spansBuilder.add(ErrorLine.NO_ERROR, str.length() - lastKwEnd);
-        setStyleSpans(0, spansBuilder.create());
+        try {
+            setStyleSpans(0, spansBuilder.create());
+        } catch (IllegalStateException e) {
+            //known error, harmless
+        }
     }
 
     static class ErrorLine {

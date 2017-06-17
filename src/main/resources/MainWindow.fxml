@@ -29,6 +29,7 @@
             <MenuItem mnemonicParsing="false" onAction="#onAboutClicked" text="About" />
             <MenuItem mnemonicParsing="false" onAction="#onDonateClicked" text="Donate :)" />
             <MenuItem mnemonicParsing="false" onAction="#onKeyboardHelpClicked" text="Keyboard help" />
+            <MenuItem mnemonicParsing="false" onAction="#onForceUpdateClicked" text="Force update" />
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
