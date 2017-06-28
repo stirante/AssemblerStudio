@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public class UpdateUtil {
 
-    private static final String JAR_VERSION = "http://storage.stirante.com.s3-us-west-2.amazonaws.com/version.txt";
+    private static final String JAR_VERSION = "http://storage.stirante.com/version.txt";
 
     public static void check(Main app) {
         if (!Settings.getInstance().isCheckingUpdate()) return;
