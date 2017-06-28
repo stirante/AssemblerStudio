@@ -503,10 +503,12 @@ public class CodeView extends Tab {
                 return "Not found!";
             else {
                 codeArea.selectRange(i, text.length() + i);
+                codeArea.requestFollowCaret();
                 return "";
             }
         } else {
             codeArea.selectRange(i, text.length() + i);
+            codeArea.requestFollowCaret();
             return "";
         }
     }
