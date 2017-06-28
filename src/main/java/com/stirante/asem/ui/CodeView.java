@@ -174,6 +174,7 @@ public class CodeView extends Tab {
         } else {
             start += diff[0];
             codeArea.moveTo(start);
+            codeArea.requestFollowCaret();
         }
     }
 
@@ -220,6 +221,7 @@ public class CodeView extends Tab {
                     original = result;
                     codeArea.replaceText(0, 0, result);
                     codeArea.moveTo(0);
+                    codeArea.requestFollowCaret();
                     codeArea.getUndoManager().forgetHistory();
                     codeArea.getUndoManager().mark();
                     checkChanges();
@@ -287,6 +289,7 @@ public class CodeView extends Tab {
         for (FieldElement field : syntaxAnalysis.getFields()) {
             if (field.matches(s, 0, 0)) {
                 codeArea.moveTo(field.getDefinitionStart());
+                codeArea.requestFollowCaret();
                 return;
             }
         }
@@ -294,6 +297,7 @@ public class CodeView extends Tab {
             if (routine.matches(s, 0, 0)) {
                 System.out.println(routine.getDefinitionStart());
                 codeArea.moveTo(routine.getDefinitionStart());
+                codeArea.requestFollowCaret();
                 return;
             }
         }
@@ -487,6 +491,7 @@ public class CodeView extends Tab {
 
     void goToLine(int line) {
         codeArea.moveTo(codeArea.position(line - 1, 0).toOffset());
+        codeArea.requestFollowCaret();
     }
 
     public String find(String text) {
