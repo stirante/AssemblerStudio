@@ -14,5 +14,5 @@ public class Constants {
     public static final String[] MNEMONIC_ARRAY = new String[]{"ACALL", "ADD", "ADDC", "AJMP", "ANL", "CJNE", "CLR", "CPL", "DA", "DEC", "DIV", "DJNZ", "INC", "JB", "JBC", "JC", "JMP", "JNB"
             , "JNC", "JNZ", "JZ", "LCALL", "LJMP", "MOV", "MOVC", "MOVX", "MUL", "NOP", "ORL", "POP", "PUSH", "RET", "RETI", "RL", "RLC", "RR", "RRC", "SETB", "SJMP", "SUBB", "SWAP", "XCH", "XCHD", "XRL"
     };
-    public static final double VERSION = 1.72;
+    public static final double VERSION = 1.8;
 }
