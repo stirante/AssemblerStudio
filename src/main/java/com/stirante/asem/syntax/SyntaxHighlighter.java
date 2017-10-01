@@ -1,16 +1,17 @@
 package com.stirante.asem.syntax;
 
-import com.stirante.asem.syntax.code.CodeCollisionElement;
-import com.stirante.asem.syntax.code.CodeErrorElement;
-import com.stirante.asem.syntax.code.ReservedAddressCollisionElement;
+import com.stirante.asem.syntax.code.*;
 import com.stirante.asem.ui.CodeView;
+import com.stirante.asem.ui.Settings;
 import com.stirante.asem.utils.AsyncTask;
 import com.stirante.asem.utils.BetterSpanBuilder;
 import com.stirante.asem.utils.TextRange;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,12 +41,10 @@ public class SyntaxHighlighter {
     );
     private final CodeView codeView;
     private final CodeArea text;
-    private AsyncTask<Void, Void, StyleSpans<Collection<String>>> task;
+    private AsyncTask<Void, Void, Object> task;
     private AtomicBoolean pause = new AtomicBoolean(false);
     private AtomicBoolean showClickables = new AtomicBoolean(false);
     private String highlightWord = "";
-    private AtomicBoolean scroll = new AtomicBoolean(false);
-    private double scrollValue = 0;
 
     public SyntaxHighlighter(CodeView codeView, CodeArea codeArea) {
         this.codeView = codeView;
@@ -62,12 +61,12 @@ public class SyntaxHighlighter {
 
     public void computeHighlighting() {
         final String str = text.getText();
-//        final double estimatedScrollY = text.getEstimatedScrollY();
+        final double estimatedScrollY = text.getEstimatedScrollY();
         if (pause.get()) return;
         if (task != null) task.cancel();
-        task = new AsyncTask<Void, Void, StyleSpans<Collection<String>>>() {
+        task = new AsyncTask<Void, Void, Object>() {
             @Override
-            public StyleSpans<Collection<String>> doInBackground(Void[] params) {
+            public Object doInBackground(Void[] params) {
                 Matcher matcher = PATTERN.matcher(str.toUpperCase());
                 BetterSpanBuilder builder = new BetterSpanBuilder();
                 while (matcher.find()) {
@@ -85,6 +84,7 @@ public class SyntaxHighlighter {
                     builder.addStyle(styleClass, matcher.start() + offset, matcher.end());
                 }
                 for (CodeCollisionElement collision : codeView.getSyntaxAnalysis().getCollisions()) {
+                    if (isCancelled()) return null;
                     if (collision instanceof ReservedAddressCollisionElement) {
                         builder.addStyle("warning", collision.getDefinitionStart(), collision.getDefinitionEnd());
                     } else {
@@ -94,43 +94,54 @@ public class SyntaxHighlighter {
                     }
                 }
                 for (CodeErrorElement error : codeView.getSyntaxAnalysis().getErrors()) {
+                    if (isCancelled()) return null;
                     builder.addStyle("error", error.getDefinitionStart(), error.getDefinitionEnd());
                 }
-//                if (!highlightWord.isEmpty()) {
-//                    String regex = "\\b" + highlightWord + "\\b";
-//                    Matcher clickables = Pattern.compile(regex).matcher(str);
-//                    while (clickables.find()) {
-//                        builder.addStyle("highlight", clickables.start(), clickables.end());
-//                    }
-//                }
-//                if (showClickables.get()) {
-//                    ArrayList<CharSequence> list = new ArrayList<>();
-//                    Collections.addAll(list, INSTRUCTIONS);
-//                    for (FieldElement fieldElement : codeView.getSyntaxAnalysis().getFields()) {
-//                        list.add(fieldElement.getName());
-//                    }
-//                    for (RoutineElement routineElement : codeView.getSyntaxAnalysis().getRoutines()) {
-//                        list.add(routineElement.getName());
-//                    }
-//                    CharSequence[] arr = list.toArray(new CharSequence[]{});
-//                    String regex = "\\b" + String.join("|", arr) + "\\b";
-//                    Matcher clickables = Pattern.compile(regex).matcher(str);
-//                    while (clickables.find()) {
-//                        builder.addStyle("clickable", clickables.start(), clickables.end());
-//                    }
-//                }
-                return builder.create(str);
+                if (Settings.getInstance().isExperimental()) {
+                    if (!highlightWord.isEmpty()) {
+                        if (isCancelled()) return null;
+                        String regex = "\\b" + highlightWord + "\\b";
+                        Matcher clickables = Pattern.compile(regex).matcher(str);
+                        while (clickables.find()) {
+                            builder.addStyle("highlight", clickables.start(), clickables.end());
+                        }
+                    }
+                    if (showClickables.get()) {
+                        ArrayList<CharSequence> list = new ArrayList<>();
+                        Collections.addAll(list, INSTRUCTIONS);
+                        for (FieldElement fieldElement : codeView.getSyntaxAnalysis().getFields()) {
+                            list.add(fieldElement.getName());
+                        }
+                        for (RoutineElement routineElement : codeView.getSyntaxAnalysis().getRoutines()) {
+                            list.add(routineElement.getName());
+                        }
+                        CharSequence[] arr = list.toArray(new CharSequence[]{});
+                        String regex = "\\b" + String.join("|", arr) + "\\b";
+                        Matcher clickables = Pattern.compile(regex).matcher(str);
+                        while (clickables.find()) {
+                            if (isCancelled()) return null;
+                            builder.addStyle("clickable", clickables.start(), clickables.end());
+                        }
+                    }
+                    return builder.createStyleSpans(str);
+                }
+                else
+                    return builder.createStyleSpans(str);
             }
 
             @Override
-            public void onPostExecute(StyleSpans<Collection<String>> result) {
-//                scroll.set(true);
-//                scrollValue = estimatedScrollY;
-                if (isCancelled()) {
+            public void onPostExecute(Object result) {
+                if (isCancelled() || result == null) {
                     return;
                 }
                 try {
-                    text.setStyleSpans(0, result);
+                    if (result instanceof ArrayList) {
+                        for (BetterSpanBuilder.StylizedRange stylizedRange : (ArrayList<BetterSpanBuilder.StylizedRange>) result) {
+                            text.setStyle(stylizedRange.getStart(), stylizedRange.getEnd(), stylizedRange.getStyles());
+                        }
+                    } else if (result instanceof StyleSpans) {
+                        text.setStyleSpans(0, (StyleSpans<Collection<String>>) result);
+                    }
                 } catch (Exception e) {
                     //Usually means that text is changing too fast. Not really a bug so shhh
                 }
@@ -149,10 +160,4 @@ public class SyntaxHighlighter {
         showClickables.set(value);
     }
 
-//    public void richChanges() {
-//        if (scroll.get()) {
-//            scroll.set(false);
-//            text.setEstimatedScrollY(scrollValue);
-//        }
-//    }
 }

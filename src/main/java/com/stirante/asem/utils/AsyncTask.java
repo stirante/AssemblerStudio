@@ -14,6 +14,8 @@ public abstract class AsyncTask<P, T, R> {
 
     @SafeVarargs
     public final void execute(P... params) {
+        done.set(false);
+        cancelled.set(false);
         new Thread() {
             @Override
             public void run() {

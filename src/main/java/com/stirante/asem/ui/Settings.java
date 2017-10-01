@@ -22,6 +22,7 @@ public class Settings {
     private static Settings instance;
     private final FontPicker font;
     private final CheckBox update;
+    private final CheckBox experiments;
     private VBox node;
     private HashMap<String, Object> map;
     private ObjectProperty<Font> fontProperty;
@@ -48,6 +49,14 @@ public class Settings {
         l = new Label("Check updates: ");
         updateBox.getChildren().addAll(l, update);
         node.getChildren().add(updateBox);
+
+        experiments = new CheckBox();
+        experiments.setSelected(isExperimental());
+        HBox experimentsBox = new HBox();
+        experimentsBox.setAlignment(Pos.CENTER);
+        l = new Label("Enable experiments: ");
+        experimentsBox.getChildren().addAll(l, experiments);
+        node.getChildren().add(experimentsBox);
     }
 
     public static Settings getInstance() {
@@ -67,6 +76,7 @@ public class Settings {
         dialog.showAndWait();
         setFont(font.getValue());
         setCheckingUpdate(update.isSelected());
+        setExperimental(experiments.isSelected());
         ConfigManager.save();
     }
 
@@ -99,5 +109,13 @@ public class Settings {
 
     public void setCheckingUpdate(boolean value) {
         map.put("update_check", value);
+    }
+
+    public boolean isExperimental() {
+        return map.containsKey("enable_experiments") && (boolean) map.get("enable_experiments");
+    }
+
+    public void setExperimental(boolean value) {
+        map.put("enable_experiments", value);
     }
 }

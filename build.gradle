@@ -8,6 +8,9 @@ repositories {
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
+    maven {
+        url 'https://jitpack.io'
+    }
 }
 task createJar(type: Jar) {
     archiveName = project.name + '.jar'
@@ -22,7 +25,7 @@ task createJar(type: Jar) {
 task buildApp(dependsOn: [clean, createJar])
 dependencies {
 //    compile files('libs/richtextfx-fat-0.7-M2.jar')
-    compile group: 'org.fxmisc.flowless', name: 'flowless', version: '0.5.2'
+    compile ("com.github.JordanMartinez:Flowless:jitpack-master-SNAPSHOT")
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '1.0.0-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }

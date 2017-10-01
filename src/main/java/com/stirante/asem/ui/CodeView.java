@@ -8,6 +8,7 @@ import com.stirante.asem.syntax.code.FieldElement;
 import com.stirante.asem.syntax.code.RoutineElement;
 import com.stirante.asem.ui.tooltip.TooltipPopup;
 import com.stirante.asem.utils.AsyncTask;
+import com.stirante.asem.utils.DelayedTask;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -51,6 +52,8 @@ public class CodeView extends Tab {
     private SyntaxAnalyzer.AnalysisResult syntaxAnalysis;
     private AutocompletionPopup autocompletionPopup;
     private SyntaxHighlighter highlighter;
+    private DelayedTask elementHighlightTask;
+    private DelayedTask syntaxHighlightTask;
 
     public CodeView(Main app, File f) {
         this.file = f;
@@ -62,6 +65,8 @@ public class CodeView extends Tab {
         highlighter = new SyntaxHighlighter(this, codeArea);
         autocompletionPopup = new AutocompletionPopup(this, codeArea);
         tooltipPopup = new TooltipPopup(this, codeArea);
+        elementHighlightTask = new DelayedTask(500L);
+        syntaxHighlightTask = new DelayedTask(300L);
 
         checkChanges();
         initMouse();
@@ -72,10 +77,8 @@ public class CodeView extends Tab {
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.textProperty().addListener((observable, oldValue, newValue) -> {
             checkChanges();
-            highlighter.computeHighlighting();
+            computeHighlighting();
         });
-//        codeArea.richChanges()
-//                .subscribe(change -> highlighter.richChanges(codeArea));
         loadFile();
         //load tab layout
         FXMLLoader loader = new FXMLLoader(CodeView.class.getResource("/Tab.fxml"));
@@ -100,6 +103,10 @@ public class CodeView extends Tab {
         return SimpleDateFormat.getTimeInstance().format(new Date(System.currentTimeMillis()));
     }
 
+    private void computeHighlighting() {
+        syntaxHighlightTask.start(() -> highlighter.computeHighlighting());
+    }
+
     private void initKeyboard() {
         codeArea.setOnKeyPressed(event -> {
             if (event.isControlDown() && event.getCode() == KeyCode.SPACE) {
@@ -108,12 +115,10 @@ public class CodeView extends Tab {
             } else if (event.isControlDown() && event.getCode() == KeyCode.SLASH) {
                 triggerComment();
                 event.consume();
-            }
-//            else if (event.getCode() == KeyCode.CONTROL) {
-//                highlighter.setShowClickables(true);
-//                highlighter.computeHighlighting();
-//            }
-            else if (event.getCode() == KeyCode.ENTER) {
+            } else if (event.getCode() == KeyCode.CONTROL && Settings.getInstance().isExperimental()) {
+                highlighter.setShowClickables(true);
+                computeHighlighting();
+            } else if (event.getCode() == KeyCode.ENTER) {
                 int l = codeArea.offsetToPosition(codeArea.getCaretPosition(), TwoDimensional.Bias.Forward).getMajor() - 1;
                 int start = codeArea.position(l, 0).toOffset();
                 int end;
@@ -131,12 +136,12 @@ public class CodeView extends Tab {
                 }
             }
         });
-//        codeArea.setOnKeyReleased(event -> {
-//            if (event.getCode() == KeyCode.CONTROL) {
-//                highlighter.setShowClickables(false);
-//                highlighter.computeHighlighting();
-//            }
-//        });
+        codeArea.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.CONTROL && Settings.getInstance().isExperimental()) {
+                highlighter.setShowClickables(false);
+                computeHighlighting();
+            }
+        });
     }
 
     private void triggerComment() {
@@ -167,7 +172,7 @@ public class CodeView extends Tab {
         });
         highlighter.setPause(false);
         checkChanges();
-        highlighter.computeHighlighting();
+        computeHighlighting();
         if (wasSelected) {
             end += diff[0];
             codeArea.selectRange(start + first[0], end);
@@ -260,26 +265,29 @@ public class CodeView extends Tab {
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, tooltipPopup::triggerTooltip);
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> tooltipPopup.hide());
 
-//        codeArea.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
-//            String wordAt = getWordAt(newValue);
-//            String old = highlighter.getHighlightWord();
-//            for (RoutineElement element : syntaxAnalysis.getRoutines()) {
-//                if (element.getName().equals(wordAt)) {
-//                    highlighter.setHighlightWord(wordAt);
-//                    highlighter.computeHighlighting();
-//                    return;
-//                }
-//            }
-//            for (FieldElement element : syntaxAnalysis.getFields()) {
-//                if (element.getName().equals(wordAt)) {
-//                    highlighter.setHighlightWord(wordAt);
-//                    highlighter.computeHighlighting();
-//                    return;
-//                }
-//            }
-//            highlighter.setHighlightWord("");
-//            if (!old.isEmpty()) highlighter.computeHighlighting();
-//        });
+        codeArea.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
+            if (Settings.getInstance().isExperimental())
+                elementHighlightTask.start(() -> {
+                    String wordAt = getWordAt(newValue);
+                    String old = highlighter.getHighlightWord();
+                    for (RoutineElement element : syntaxAnalysis.getRoutines()) {
+                        if (element.getName().equals(wordAt)) {
+                            highlighter.setHighlightWord(wordAt);
+                            computeHighlighting();
+                            return;
+                        }
+                    }
+                    for (FieldElement element : syntaxAnalysis.getFields()) {
+                        if (element.getName().equals(wordAt)) {
+                            highlighter.setHighlightWord(wordAt);
+                            computeHighlighting();
+                            return;
+                        }
+                    }
+                    highlighter.setHighlightWord("");
+                    if (!old.isEmpty()) computeHighlighting();
+                });
+        });
     }
 
     private void triggerGoTo(MouseEvent event) {
@@ -295,7 +303,6 @@ public class CodeView extends Tab {
         }
         for (RoutineElement routine : syntaxAnalysis.getRoutines()) {
             if (routine.matches(s, 0, 0)) {
-                System.out.println(routine.getDefinitionStart());
                 codeArea.moveTo(routine.getDefinitionStart());
                 codeArea.requestFollowCaret();
                 return;
