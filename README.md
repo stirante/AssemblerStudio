@@ -1,5 +1,12 @@
 ## AssemblerStudio
-Very simple editor for asm51 code. Can also compile files.
+Simple editor for asm51 code. Can also compile files.
+
+###Download
+You can download prebuilt releases.
+
+AssemblerStudio: http://files.stirante.com/AssemblerStudio.zip
+
+AssemblerStudio + JRE: http://files.stirante.com/AssemblerStudio%20-%20Portable.zip
 
 ### Building
     git clone https://github.com/stirante/AssemblerStudio.git
