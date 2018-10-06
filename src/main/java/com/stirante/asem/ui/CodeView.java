@@ -23,7 +23,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.MouseOverTextEvent;
+import org.fxmisc.richtext.event.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.io.*;
