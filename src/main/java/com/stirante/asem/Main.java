@@ -92,7 +92,14 @@ public class Main extends Application {
         redoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         closeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        //segmentCreatorItem.setAccelerator(new KeyCodeCombination(KeyCode.INSERT, KeyCombination.CONTROL_DOWN));
+        //lcdCreatorItem.setAccelerator(new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.ALT_DOWN));
         root.setOnKeyPressed(event -> {
+            // disable menu focus on alt
+            if (event.isAltDown()) {
+                event.consume();
+                return;
+            }
             if (event.getCode() == KeyCode.F9) onCompileClicked();
             else if (event.getCode() == KeyCode.F10) onRunClicked();
             else if (event.isControlDown() && event.getCode() == KeyCode.F) {

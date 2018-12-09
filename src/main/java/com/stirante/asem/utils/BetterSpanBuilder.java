@@ -29,8 +29,7 @@ public class BetterSpanBuilder {
             }
             if (!styles.containsAll(temp) || !temp.containsAll(styles)) {
                 spansBuilder.add(styles, i - start);
-                styles = new ArrayList<>();
-                styles.addAll(temp);
+                styles = new ArrayList<>(temp);
                 start = i;
             }
         }
@@ -50,8 +49,7 @@ public class BetterSpanBuilder {
             }
             if (!styles.containsAll(temp) || !temp.containsAll(styles)) {
                 result.add(new StylizedRange(styles, start, i));
-                styles = new ArrayList<>();
-                styles.addAll(temp);
+                styles = new ArrayList<>(temp);
                 start = i;
             }
         }
