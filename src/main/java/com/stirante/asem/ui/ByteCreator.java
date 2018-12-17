@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,7 +34,7 @@ public class ByteCreator {
     public TextField bit1;
     @FXML
     public TextField bit0;
-    private ArrayList<String> descriptions;
+    private List<String> descriptions;
     private TextField[] bits;
     private VBox node;
 
@@ -70,7 +71,7 @@ public class ByteCreator {
         }
     }
 
-    public String create(String name, ArrayList<String> descriptions) {
+    public String create(String name, List<String> descriptions) {
         this.descriptions = descriptions;
         reset();
         Dialog<String> dialog = new Dialog<>();
@@ -94,15 +95,18 @@ public class ByteCreator {
         });
 
         Optional<String> result = dialog.showAndWait();
-        return result.isPresent() ? result.get() : "";
+        return result.orElse("");
     }
 
     private String constructByte() {
         StringBuilder sb = new StringBuilder("#");
         for (int i = 7; i >= 0; i--) {
             TextField bit = bits[i];
-            if (bit.getText().isEmpty()) sb.append("0");
-            else sb.append(bit.getText());
+            if (bit.getText().isEmpty()) {
+                sb.append("0");
+            } else {
+                sb.append(bit.getText());
+            }
         }
         sb.append("b");
         return sb.toString();

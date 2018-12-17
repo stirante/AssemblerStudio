@@ -79,11 +79,11 @@ public class SegmentCreator {
         });
 
         Optional<String> result = dialog.showAndWait();
-        return result.isPresent() ? result.get() : "";
+        return result.orElse("");
     }
 
     private static String constructByte() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         for (int i = 7; i >= 0; i--) {
             sb.append(segments[i].set ? "1" : "0");
         }

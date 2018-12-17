@@ -9,6 +9,7 @@ import org.fxmisc.richtext.event.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by stirante
@@ -18,7 +19,7 @@ public class TooltipPopup extends Popup {
     private final CodeView view;
     private final CodeArea codeArea;
     private final Label popupMsg;
-    private final ArrayList<TooltipContent> contents = new ArrayList<>();
+    private final List<TooltipContent> contents = new ArrayList<>();
 
     public TooltipPopup(CodeView view, CodeArea codeArea) {
         this.view = view;
@@ -53,8 +54,8 @@ public class TooltipPopup extends Popup {
         }
     }
 
-    private ArrayList<TooltipContent> getTooltips() {
-        ArrayList<TooltipContent> result = new ArrayList<>();
+    private List<TooltipContent> getTooltips() {
+        List<TooltipContent> result = new ArrayList<>();
         result.add(DefaultTooltips.getInstance());
         result.addAll(view.getSyntaxAnalysis().getErrors());
         result.addAll(view.getSyntaxAnalysis().getCollisions());

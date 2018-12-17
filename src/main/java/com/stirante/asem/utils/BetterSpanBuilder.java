@@ -5,13 +5,14 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by stirante
  */
 public class BetterSpanBuilder {
 
-    private ArrayList<SingleStyleRange> regions = new ArrayList<>();
+    private final List<SingleStyleRange> regions = new ArrayList<>();
 
     public void addStyle(String style, int start, int end) {
         regions.add(new SingleStyleRange(start, end, style));
@@ -19,8 +20,8 @@ public class BetterSpanBuilder {
 
     public StyleSpans<Collection<String>> createStyleSpans(String str) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-        ArrayList<String> styles = new ArrayList<>();
-        ArrayList<String> temp = new ArrayList<>();
+        List<String> styles = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
         int start = 0;
         for (int i = 0; i < str.length(); i++) {
             temp.clear();
@@ -37,10 +38,10 @@ public class BetterSpanBuilder {
         return spansBuilder.create();
     }
 
-    public ArrayList<StylizedRange> createStylizedRanges(String str) {
-        ArrayList<StylizedRange> result = new ArrayList<>();
-        ArrayList<String> styles = new ArrayList<>();
-        ArrayList<String> temp = new ArrayList<>();
+    public List<StylizedRange> createStylizedRanges(String str) {
+        List<StylizedRange> result = new ArrayList<>();
+        List<String> styles = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
         int start = 0;
         for (int i = 0; i < str.length(); i++) {
             temp.clear();
@@ -58,20 +59,20 @@ public class BetterSpanBuilder {
     }
 
     public class StylizedRange extends TextRange {
-        public ArrayList<String> getStyles() {
+        public List<String> getStyles() {
             return styles;
         }
 
-        private ArrayList<String> styles = new ArrayList<>();
+        private final List<String> styles = new ArrayList<>();
 
-        public StylizedRange(ArrayList<String> styles, int start, int end) {
+        public StylizedRange(List<String> styles, int start, int end) {
             super(start, end);
             this.styles.addAll(styles);
         }
     }
 
     class SingleStyleRange extends TextRange {
-        private String style;
+        private final String style;
 
         public SingleStyleRange(int start, int end, String style) {
             super(start, end);

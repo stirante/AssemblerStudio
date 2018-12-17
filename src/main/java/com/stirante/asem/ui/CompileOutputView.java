@@ -61,12 +61,13 @@ public class CompileOutputView extends StyledTextArea<CompileOutputView.ErrorLin
             this(-1, null);
         }
 
-        ErrorLine(int line, Main app) {
+        public ErrorLine(int line, Main app) {
             this.line = line;
             this.app = app;
         }
 
-        void applyToText(TextFlow text) {
+        public void applyToText(TextFlow text) {
+
         }
 
         public void applyToText(TextExt text) {

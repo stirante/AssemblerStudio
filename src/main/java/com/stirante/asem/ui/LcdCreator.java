@@ -76,7 +76,7 @@ public class LcdCreator {
         });
 
         Optional<String> result = dialog.showAndWait();
-        return result.isPresent() ? result.get() : "";
+        return result.orElse("");
     }
 
     private static String constructDb() {

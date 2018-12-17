@@ -9,24 +9,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AsyncTask<P, T, R> {
 
-    private AtomicBoolean cancelled = new AtomicBoolean(false);
-    private AtomicBoolean done = new AtomicBoolean(false);
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
+    private final AtomicBoolean done = new AtomicBoolean(false);
 
     @SafeVarargs
     public final void execute(P... params) {
         done.set(false);
         cancelled.set(false);
-        new Thread() {
-            @Override
-            public void run() {
-                R result = doInBackground(params);
-                done.set(true);
-                if (!isCancelled())
-                    Platform.runLater(() -> onPostExecute(result));
-                if (isCancelled())
-                    Platform.runLater(() -> onCancel());
+        new Thread(() -> {
+            R result = doInBackground(params);
+            done.set(true);
+            if (!isCancelled()) {
+                Platform.runLater(() -> onPostExecute(result));
             }
-        }.start();
+            if (isCancelled()) {
+                Platform.runLater(this::onCancel);
+            }
+        }).start();
     }
 
     public void onProgress(T progress) {
@@ -47,7 +46,9 @@ public abstract class AsyncTask<P, T, R> {
         return cancelled.get();
     }
 
-    public void onCancel() { }
+    public void onCancel() {
+
+    }
 
     public boolean isDone() {
         return done.get();

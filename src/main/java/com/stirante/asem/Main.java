@@ -100,9 +100,11 @@ public class Main extends Application {
                 event.consume();
                 return;
             }
-            if (event.getCode() == KeyCode.F9) onCompileClicked();
-            else if (event.getCode() == KeyCode.F10) onRunClicked();
-            else if (event.isControlDown() && event.getCode() == KeyCode.F) {
+            if (event.getCode() == KeyCode.F9) {
+                onCompileClicked();
+            } else if (event.getCode() == KeyCode.F10) {
+                onRunClicked();
+            } else if (event.isControlDown() && event.getCode() == KeyCode.F) {
                 if (hasOpenTab()) {
                     String selectedText = getOpenTab().getSelectedText();
                     findDialog.show(selectedText.isEmpty() ? null : selectedText);
@@ -274,7 +276,7 @@ public class Main extends Application {
 
     public void byteCreatorTmod() {
         if (hasOpenTab()) {
-            ArrayList<String> descs = new ArrayList<>();
+            final List<String> descs = new ArrayList<>();
             descs.add(0, "Timer 0\n" +
                     "\n" +
                     "M0\n" +
@@ -314,7 +316,7 @@ public class Main extends Application {
 
     public void byteCreatorTcon() {
         if (hasOpenTab()) {
-            ArrayList<String> descs = new ArrayList<>();
+            final List<String> descs = new ArrayList<>();
             descs.add(0, "IT0\n" +
                     "External interrupt 0 signal type control bit. Same as IT0.");
             descs.add(1, "IE0\n" +
@@ -338,7 +340,7 @@ public class Main extends Application {
 
     public void byteCreatorIe() {
         if (hasOpenTab()) {
-            ArrayList<String> descs = new ArrayList<>();
+            final List<String> descs = new ArrayList<>();
             descs.add(0, "EX0\n" +
                     "Enable External 0 Interrupt");
             descs.add(1, "ET0\n" +

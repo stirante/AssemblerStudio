@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -72,7 +73,7 @@ public class SyntaxAnalyzer {
             }
             lineOffset += line.length() + 1;
         }
-        ArrayList<CodeCollisionElement> c = new ArrayList<>();
+        final List<CodeCollisionElement> c = new ArrayList<>();
         for (FieldElement field : result.fields) {
             if (field.getFieldType().equalsIgnoreCase("equ")) continue;
             int address = parseAddress(field.getValue());
@@ -120,24 +121,24 @@ public class SyntaxAnalyzer {
 
 
     public static class AnalysisResult {
-        private ArrayList<FieldElement> fields = new ArrayList<>();
-        private ArrayList<RoutineElement> routines = new ArrayList<>();
-        private ArrayList<CodeCollisionElement> collisions = new ArrayList<>();
-        private ArrayList<CodeErrorElement> errors = new ArrayList<>();
+        private final List<FieldElement> fields = new ArrayList<>();
+        private final List<RoutineElement> routines = new ArrayList<>();
+        private final List<CodeCollisionElement> collisions = new ArrayList<>();
+        private final List<CodeErrorElement> errors = new ArrayList<>();
 
-        public ArrayList<FieldElement> getFields() {
+        public List<FieldElement> getFields() {
             return fields;
         }
 
-        public ArrayList<RoutineElement> getRoutines() {
+        public List<RoutineElement> getRoutines() {
             return routines;
         }
 
-        public ArrayList<CodeCollisionElement> getCollisions() {
+        public List<CodeCollisionElement> getCollisions() {
             return collisions;
         }
 
-        public ArrayList<CodeErrorElement> getErrors() {
+        public List<CodeErrorElement> getErrors() {
             return errors;
         }
     }

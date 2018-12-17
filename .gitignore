@@ -1,8 +1,4 @@
-/target/
-
-# Java class files
-*.class
-
-# Intellij
-*.iml
+target/
+out/
+config.dat
 .idea/

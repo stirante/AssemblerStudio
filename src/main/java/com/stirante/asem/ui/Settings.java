@@ -9,9 +9,16 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Created by stirante
@@ -23,6 +30,12 @@ public class Settings {
     private final FontPicker font;
     private final CheckBox update;
     private final CheckBox experiments;
+    private final TextField assemblerFile;
+    private final Button assemblerFileButton;
+    private final TextField emulatorFile;
+    private final Button emulatorFileButton;
+    private final VBox monoErrorBox;
+    private String monoPath;
     private VBox node;
     private HashMap<String, Object> map;
     private ObjectProperty<Font> fontProperty;
@@ -57,6 +70,82 @@ public class Settings {
         l = new Label("Enable experiments: ");
         experimentsBox.getChildren().addAll(l, experiments);
         node.getChildren().add(experimentsBox);
+
+        if (!map.containsKey("assembler-file")) {
+            map.put("assembler-file", "bin/asemw.exe");
+        }
+
+        assemblerFile = new TextField();
+        assemblerFile.setText((String) map.get("assembler-file"));
+        HBox assemblerFileBox = new HBox();
+        assemblerFileBox.setAlignment(Pos.CENTER);
+        l = new Label("Assembler path: ");
+        assemblerFileButton = new Button();
+        assemblerFileButton.setText("Browse");
+        assemblerFileBox.getChildren().addAll(l, assemblerFile, assemblerFileButton);
+        node.getChildren().add(assemblerFileBox);
+
+        if (!map.containsKey("emulator-file")) {
+            map.put("emulator-file", "bin/DSM-51_Any_CPU.exe");
+        }
+
+        emulatorFile = new TextField();
+        emulatorFile.setText((String) map.get("emulator-file"));
+        HBox emulatorFileBox = new HBox();
+        emulatorFileBox.setAlignment(Pos.CENTER);
+        l = new Label("Emulator path:");
+        emulatorFileButton = new Button();
+        emulatorFileButton.setText("Browse");
+        emulatorFileBox.getChildren().addAll(l, emulatorFile, emulatorFileButton);
+        node.getChildren().add(emulatorFileBox);
+
+        CheckBox useMonoCheckBox = new CheckBox();
+        l = new Label("Use mono: ");
+        HBox useMonoBox = new HBox();
+        useMonoBox.setAlignment(Pos.CENTER);
+        useMonoBox.getChildren().addAll(l, useMonoCheckBox);
+        node.getChildren().add(useMonoBox);
+        monoPath = null;
+        Label monoErrorLabel = new Label();
+        monoErrorLabel.setTextFill(Color.RED);
+        monoErrorLabel.setText("Could not find mono. Install it first.");
+        monoErrorBox = new VBox();
+        monoErrorBox.setAlignment(Pos.CENTER);
+        monoErrorBox.getChildren().add(monoErrorLabel);
+
+        if (map.containsKey("monopath") && !((String) map.get("monopath")).isEmpty()) {
+            monoPath = (String) map.get("monopath");
+
+            if (!new File(monoPath).exists()) {
+                monoPath = null;
+            } else {
+                useMonoCheckBox.setSelected(true);
+            }
+        }
+
+        useMonoCheckBox.setOnAction(e -> {
+            node.getChildren().remove(monoErrorBox);
+
+            if (useMonoCheckBox.isSelected()) {
+                try {
+                    Process p = new ProcessBuilder("which", "mono").start();
+                    p.waitFor();
+
+                    if (p.exitValue() == 0) {
+                        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        monoPath = br.readLine();
+                        map.put("monopath", monoPath);
+                    } else {
+                        monoPath = null;
+                        node.getChildren().add(monoErrorBox);
+                        useMonoCheckBox.setSelected(false);
+                    }
+                } catch (IOException | InterruptedException e1){
+                    e1.printStackTrace();
+                    monoPath = null;
+                }
+            }
+        });
     }
 
     public static Settings getInstance() {
@@ -71,6 +160,28 @@ public class Settings {
         dialog.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton);
+
+        assemblerFileButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName((String) map.get("assembler-file"));
+            File file = fileChooser.showOpenDialog(dialog.getOwner());
+
+            if (file != null) {
+                map.put("assembler-file", file.getAbsolutePath());
+                assemblerFile.setText(file.getAbsolutePath());
+            }
+        });
+
+        emulatorFileButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName((String) map.get("emulator-file"));
+            File file = fileChooser.showOpenDialog(dialog.getOwner());
+
+            if (file != null) {
+                map.put("emulator-file", file.getAbsolutePath());
+                emulatorFile.setText(file.getAbsolutePath());
+            }
+        });
 
         dialog.getDialogPane().setContent(node);
         dialog.showAndWait();
@@ -117,5 +228,13 @@ public class Settings {
 
     public void setExperimental(boolean value) {
         map.put("enable_experiments", value);
+    }
+
+    public Optional<String> getMonoPath() {
+        return Optional.ofNullable(monoPath);
+    }
+
+    public String getEmulatorPath() {
+        return emulatorFile.getText();
     }
 }

@@ -6,13 +6,14 @@ import com.stirante.asem.utils.TextRange;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by stirante
  */
 public class CodeCollisionElement implements CodeElement, TooltipContent {
     private int address;
-    private ArrayList<TextRange> ranges = new ArrayList<>();
+    private final List<TextRange> ranges = new ArrayList<>();
 
     public CodeCollisionElement(int start, int end, int line, int address) {
         this.address = address;

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -14,7 +15,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 public class FileObserver {
 
-    private HashMap<WatchKey, WatchHolder> events = new HashMap<>();
+    private Map<WatchKey, WatchHolder> events = new HashMap<>();
     private AtomicBoolean running = new AtomicBoolean(true);
     private WatchService watcher;
 
@@ -64,6 +65,7 @@ public class FileObserver {
                     }
                     take.reset();
                 } catch (InterruptedException ignored) {
+
                 }
             }
         }).start();

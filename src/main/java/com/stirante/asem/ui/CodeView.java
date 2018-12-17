@@ -8,6 +8,7 @@ import com.stirante.asem.syntax.code.FieldElement;
 import com.stirante.asem.syntax.code.RoutineElement;
 import com.stirante.asem.ui.tooltip.TooltipPopup;
 import com.stirante.asem.utils.AsyncTask;
+import com.stirante.asem.utils.ConfigManager;
 import com.stirante.asem.utils.DelayedTask;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -145,7 +147,7 @@ public class CodeView extends Tab {
     }
 
     private void triggerComment() {
-        ArrayList<Integer> lines = new ArrayList<>();
+        final List<Integer> lines = new ArrayList<>();
         boolean wasSelected = false;
         int start;
         int end = 0;
@@ -329,11 +331,16 @@ public class CodeView extends Tab {
         if (autocompletionPopup.isAutocompletion()) {
             autocompletionPopup.onChanges();
         }
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
         boolean old = changed;
         changed = !codeArea.getText().replaceAll("\n", "\r\n").equals(original);
-        if (changed && !old) setText(file.getName() + "*");
-        else if (!changed && old) setText(file.getName());
+        if (changed && !old) {
+            setText(file.getName() + "*");
+        } else {
+            if (!changed && old) setText(file.getName());
+        }
     }
 
     public boolean save() {
@@ -409,7 +416,7 @@ public class CodeView extends Tab {
 
     public String compile() {
         //process with absolute path to compiler and absolute path to asm file
-        ProcessBuilder pb = new ProcessBuilder(new File("bin/asemw.exe").getAbsolutePath(), file.getAbsolutePath());
+        ProcessBuilder pb = new ProcessBuilder((String) ConfigManager.getMap().get("assembler-file"), file.getAbsolutePath());
         //set working directory to the one containing asm file (fixes MCU files missing)
         pb.directory(file.getParentFile());
         try {
@@ -419,10 +426,14 @@ public class CodeView extends Tab {
 
             //grab output and return it
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             StringBuilder sb = new StringBuilder();
             sb.append("[").append(getTime()).append("] Compiling ").append(file.getAbsolutePath()).append('\n');
             String line;
             while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+            while ((line = err.readLine()) != null) {
                 sb.append(line).append('\n');
             }
             br.close();
@@ -451,7 +462,13 @@ public class CodeView extends Tab {
         File hex = new File(file.getParentFile(), file.getName().substring(0, file.getName().lastIndexOf('.')) + ".hex");
         if (!hex.exists()) return "You need to compile file first!";
         //process with absolute path to compiler and absolute path to asm file
-        ProcessBuilder pb = new ProcessBuilder(new File("bin/DSM-51_Any_CPU.exe").getAbsolutePath(), hex.getAbsolutePath());
+        ProcessBuilder pb;
+        if (Settings.getInstance().getMonoPath().isPresent()) {
+            pb = new ProcessBuilder(Settings.getInstance().getMonoPath().get(),
+                                    Settings.getInstance().getEmulatorPath(), hex.getAbsolutePath());
+        } else {
+            pb = new ProcessBuilder(Settings.getInstance().getEmulatorPath(), hex.getAbsolutePath());
+        }
         //set working directory to the one containing asm file (fixes MCU files missing)
         pb.directory(file.getParentFile());
         try {
@@ -506,9 +523,9 @@ public class CodeView extends Tab {
         int i = codeArea.getText().toLowerCase().indexOf(text.toLowerCase(), start);
         if (i == -1) {
             i = codeArea.getText().toLowerCase().indexOf(text.toLowerCase());
-            if (i == -1)
+            if (i == -1) {
                 return "Not found!";
-            else {
+            } else {
                 codeArea.selectRange(i, text.length() + i);
                 codeArea.requestFollowCaret();
                 return "";

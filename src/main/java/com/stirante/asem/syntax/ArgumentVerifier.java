@@ -5,6 +5,7 @@ import com.stirante.asem.syntax.code.RoutineElement;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class ArgumentVerifier {
 
-    public static MatchType checkStatus(String mnemonic, String args, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
+    public static MatchType checkStatus(String mnemonic, String args, List<FieldElement> fields, List<RoutineElement> routines) {
         String[] split = args.split(",");
         Field[] fs = MnemonicArguments.class.getDeclaredFields();
         for (Field f : fs) {
@@ -26,8 +27,11 @@ public class ArgumentVerifier {
                             int match = 0;
                             for (int i = 0; i < types.length; i++) {
                                 MatchType type = types[i].matches(split[i], fields, routines);
-                                if (type == MatchType.MATCH) match++;
-                                else if (type == MatchType.UNKNOWN_SYMBOL) return type;
+                                if (type == MatchType.MATCH) {
+                                    match++;
+                                } else if (type == MatchType.UNKNOWN_SYMBOL) {
+                                    return type;
+                                }
                             }
                             if (match == types.length) return MatchType.MATCH;
                             return MatchType.NOT_MATCH;
@@ -83,7 +87,7 @@ public class ArgumentVerifier {
             pattern = Pattern.compile("^" + regex + "$");
         }
 
-        MatchType matches(String str, ArrayList<FieldElement> fields, ArrayList<RoutineElement> routines) {
+        MatchType matches(String str, List<FieldElement> fields, List<RoutineElement> routines) {
             Matcher matcher = pattern.matcher(str);
             if (matcher.matches() && matcher.groupCount() == 1) {
                 String routine = matcher.group(1);

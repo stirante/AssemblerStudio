@@ -14,6 +14,7 @@ import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class AutocompletionPopup extends Popup {
     private final ListView<String> list;
     private final CodeView view;
     private final CodeArea codeArea;
-    ObservableListWrapper<String> items = new ObservableListWrapper<>(new ArrayList<>());
+    private final ObservableListWrapper<String> items = new ObservableListWrapper<>(new ArrayList<>());
     private boolean autocomplete = false;
     private int autoIndex = 0;
     private boolean wasMnemonic = false;
@@ -87,7 +88,7 @@ public class AutocompletionPopup extends Popup {
         String line = codeArea.getText().substring(lineStart.toOffset(), caret.toOffset());
         boolean isMnemonic = Constants.MNEMONIC.matcher(line).matches();
         String s = view.getWordAt(codeArea.getCaretPosition());
-        ArrayList<String> suggestions = new ArrayList<>();
+        final List<String> suggestions = new ArrayList<>();
         if (isMnemonic) {
             wasMnemonic = true;
             boolean upperCase = Character.isUpperCase(s.charAt(0));
@@ -116,7 +117,7 @@ public class AutocompletionPopup extends Popup {
         return false;
     }
 
-    public void setSuggestions(ArrayList<String> list) {
+    public void setSuggestions(final List<String> list) {
         Collections.sort(list);
         items.clear();
         items.addAll(list);

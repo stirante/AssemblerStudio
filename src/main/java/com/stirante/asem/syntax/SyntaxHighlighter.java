@@ -12,6 +12,7 @@ import org.fxmisc.richtext.model.StyleSpans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,7 +108,7 @@ public class SyntaxHighlighter {
                         }
                     }
                     if (showClickables.get()) {
-                        ArrayList<CharSequence> list = new ArrayList<>();
+                        final List<CharSequence> list = new ArrayList<>();
                         Collections.addAll(list, INSTRUCTIONS);
                         for (FieldElement fieldElement : codeView.getSyntaxAnalysis().getFields()) {
                             list.add(fieldElement.getName());
@@ -124,9 +125,9 @@ public class SyntaxHighlighter {
                         }
                     }
                     return builder.createStyleSpans(str);
-                }
-                else
+                } else {
                     return builder.createStyleSpans(str);
+                }
             }
 
             @Override
@@ -136,10 +137,12 @@ public class SyntaxHighlighter {
                 }
                 try {
                     if (result instanceof ArrayList) {
-                        for (BetterSpanBuilder.StylizedRange stylizedRange : (ArrayList<BetterSpanBuilder.StylizedRange>) result) {
+                        //noinspection unchecked
+                        for (BetterSpanBuilder.StylizedRange stylizedRange : (List<BetterSpanBuilder.StylizedRange>) result) {
                             text.setStyle(stylizedRange.getStart(), stylizedRange.getEnd(), stylizedRange.getStyles());
                         }
                     } else if (result instanceof StyleSpans) {
+                        //noinspection unchecked
                         text.setStyleSpans(0, (StyleSpans<Collection<String>>) result);
                     }
                 } catch (Exception e) {
